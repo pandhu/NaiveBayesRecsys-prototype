@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <display-name>SimpleJspWebsite</display-name>
+
+  
+  <filter>
+    <filter-name>Filter</filter-name>
+    <filter-class>com.coolonWeb.Filter</filter-class>
+  </filter>
+  
+  <filter-mapping>
+    <filter-name>Filter</filter-name>
+    <url-pattern>*.jsp</url-pattern>
+  </filter-mapping>
+
+
+  <servlet>
+    <servlet-name>Main</servlet-name>
+    <servlet-class>com.coolonWeb.Main</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>HomeController</servlet-name>
+    <servlet-class>com.coolonWeb.controller.HomeController</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>RecommendController</servlet-name>
+    <servlet-class>com.coolonWeb.controller.RecommendController</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>BuyController</servlet-name>
+    <servlet-class>com.coolonWeb.controller.BuyController</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>ItemController</servlet-name>
+    <servlet-class>com.coolonWeb.controller.ItemController</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>HomeController</servlet-name>
+    <url-pattern>/home</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>RecommendController</servlet-name>
+    <url-pattern>/recommend</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>BuyController</servlet-name>
+    <url-pattern>/buy</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ItemController</servlet-name>
+    <url-pattern>/item</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Main</servlet-name>
+    <url-pattern>/enroll</url-pattern>
+  </servlet-mapping>
+
+</web-app>
