@@ -1,0 +1,63 @@
+#wrapper
+{
+    margin:0 auto;  
+    width:500px;
+    height:200px;
+    border-right:1px solid black;
+    border-bottom:1px solid black;
+    padding:0 0 100px 0px;
+    background-color:#DEF9BF;
+    font:12px sans-serif;
+}
+
+.letak_submit
+{
+    position:relative;
+    top:10px;
+}
+
+#logo
+{
+  margin: 0 auto;
+  background-color:#2bec2b;
+}
+
+#footer
+{
+   border-top:1px solid black;
+   padding-top:5px;
+   margin:40px 20px 0 20px;
+   font:10px sans-serif;
+   text-align: center;
+}
+
+table
+{
+    padding:20px 0 0 10px;
+}
+
+#message
+{
+    background-color:#dea4b4;
+    padding:3px 0 0 50px; 
+}
+
+input[type=submit],input[type=reset]
+{ 
+  background-color:#125788;
+  padding:1px 5px 1px 5px;
+  border:none;
+  font:12px ;
+  color:#ffffff;
+}
+
+input[type=submit]:hover,input[type=reset]:hover
+{
+  background-color:#ec4401;
+  padding:1px 5px 1px 5px;
+  border:none;
+  font:12px ;
+  color:#ffffff;
+  cursor:pointer;
+}
+

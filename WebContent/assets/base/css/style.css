@@ -1,0 +1,272 @@
+/*
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Modified by : Akhmad Sofwan (sofwan@sofwan.net)
+*/
+
+body
+{
+  background: url("http://localhost/acct/image/background_ulang.jpg") repeat-x left top;
+  margin:8px;
+}
+
+#logo 
+{  
+  width: 900px;
+  height:135px;
+  margin:0 auto;
+  background: url('http://localhost/elev/image/header.jpg') no-repeat ;     
+}
+
+#menu
+{
+ width:900px;
+ height:31px;
+ margin:2px 0 2px 5px;
+ background: red url('http://localhost/acct/image/menu.jpg') repeat-x ;
+ position:relative;
+ top:-10px;
+ 
+}
+
+#isi
+{
+   background-color: #ffffff;
+   padding:12px;
+   font:12px sans-serif ;
+}
+
+
+#footer
+{  
+  background-color: #8CB064;
+  padding :4px 0 4px 0;
+  margin:0 auto;
+  text-align: center;
+  font:12px sans-serif;  
+}
+
+a:hover
+{
+    color:#395a53;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
+#letak_status
+{
+  position:relative;
+  text-align:right;
+  font:12px sans-serif;
+  top:7px;
+}
+
+.wrapping
+{
+  overflow: auto; 
+  width: 300px;
+  white-space: nowrap;
+}
+
+fieldset
+{
+  border:none;
+  border-top:1px dotted;
+}
+
+legend
+{
+    color:red	;
+    font-weight: bold;
+}
+
+a:hover
+{
+   text-decoration: none;
+}
+
+a:link
+{
+  text-decoration: underline;
+  color:#A52A2A;
+}
+
+a:visited
+{
+   text-decoration: underline;
+   color:#765E24;
+}
+
+#kata_master_posting_auto
+{
+  padding:20px 30px 60px 50px;
+  font:13px sans-serif;
+  background-color:#298C4A;
+  margin:0 auto;
+  height:30px;
+  width:710px;
+  margin-bottom:15px;
+}
+
+#kata_master
+{
+  padding:20px 30px 60px 50px;
+  font:13px sans-serif;
+  background-color:#298C4A;
+  margin:0 auto;
+  height:10px;
+  width:210px;
+  margin-bottom:15px;
+}
+
+#kata_master_error
+{
+  padding:20px 30px 60px 50px;
+  font:13px sans-serif;
+  background-color:#FFFF00;
+  margin:0 auto;
+  height:40px;
+  width:210px;
+  margin-bottom:15px;
+}
+
+#kata_master_fsl
+{
+  padding:20px 30px 60px 50px;
+  font:13px sans-serif;
+  background-color:#298C4A;
+  margin:0 auto;
+  height:35px;
+  width:210px;
+  margin-bottom:15px;
+}
+
+.pindah
+{
+   position:relative;
+   left:225px;
+}
+
+#letak_button
+{
+    position:relative;
+    left:30px;
+}
+
+.autocomplete-w1 { background:url(img/shadow.png) no-repeat bottom right; position:absolute; top:0px; left:0px; margin:8px 0 0 6px; /* IE6 fix: */ _background:none; _margin:0; }
+.autocomplete { border:1px solid #999; background:#FFF; cursor:default; text-align:left; max-height:350px; overflow:auto; margin:-6px 6px 6px -6px; /* IE6 specific: */ _height:350px;  _margin:0; _overflow-x:hidden; }
+.autocomplete .selected { background:#F0F0F0; }
+.autocomplete div { padding:2px 5px; white-space:nowrap; }
+.autocomplete strong { font-weight:normal; color:#3399FF; }
+
+.isinya
+{
+    font-weight: bold;
+    width: 100px;
+}
+
+.tebal
+{
+  
+  text-align:right;
+}
+
+.warnanya
+{
+    background-color:#00ff00;
+}
+
+#tabel1
+{
+  float:left;
+}
+
+#letak1
+{
+   position:relative;
+   left:400px;
+   font-weight:bold;
+}
+
+#letak2
+{
+   position:relative;
+   left:430px;
+   font-weight:bold;
+}
+
+#letak3
+{
+  position:relative;
+  left:420px;
+  font-weight:bold;
+}
+
+#no_underline
+{
+  border-style:none;
+}
+
+.kanan
+{
+  text-align:right;
+}
+
+#geser
+{
+    position:relative;
+    left:60px;
+}
+
+#letak_samping
+{
+   position:relative;
+   left:600px;
+   top:-30px;   
+}
+
+#letak1a
+{
+  position:relative;
+  left:250px;
+  font-weight:bold;  
+}
+
+#letak2a
+{
+   position:relative;
+   left:310px;
+   font-weight:bold;
+}
+
+#letak3a
+{
+  position:relative;
+  left:280px;
+  font-weight:bold;
+}
+
+.tengah
+{
+   text-align:center;
+   background:#ADD8E6;
+}
+
+#tabel_scroll
+{
+  position:relative;   
+  width: 1100px;
+  height: 700px;
+  overflow: scroll; 
+  border: 1px dotted black;   
+  left:70px;
+}
+
+.letak_a
+{
+    text-align: right;
+}
+

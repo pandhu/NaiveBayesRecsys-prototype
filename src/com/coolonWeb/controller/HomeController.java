@@ -22,6 +22,28 @@ public class HomeController extends HttpServlet {
 
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
+
+        String path = request.getPathInfo();
+        if(path == null) path = "";
+        switch (path){
+            case "":
+                this.showHome(request,response);
+                return;
+            default:
+                return;
+        }
+
+    }
+
+    public void showHome(HttpServletRequest request,
+                         HttpServletResponse response) throws ServletException, IOException {
+        RequestDispatcher rd = request.getRequestDispatcher("/login.jsp");
+        rd.forward(request,response);
+
+    }
+
+    public void showDashboard(HttpServletRequest request,
+                              HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher rd = request.getRequestDispatcher("/home.jsp");
         String newUsername = "usr"+Main.model.getItems().size();
         System.out.println("new username: "+newUsername);

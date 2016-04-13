@@ -1,31 +1,37 @@
+<%@ page import="com.coolonWeb.Config" %>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8" />
-<title>${pageTitle} - ${siteName}</title>
-<meta name="description" content="${metaDescription}" />
-<meta name="keywords" content="${metaKeywords}" />
-  <meta name="author" content="Pierre-Henry Soria" />
-  <link rel="stylesheet" href="/NaiveBayesRecSys/assets/base/css/bootstrap.css" />
-  <link rel="stylesheet" href="/NaiveBayesRecSys/assets/base/css/bootstrap-responsive.css" />
-  <link rel="stylesheet" href="/NaiveBayesRecSys/assets/base/css/common.css" />
-  <link rel="stylesheet" href="/NaiveBayesRecSys/assets/base/css/ajph.css" />
-  <link rel="stylesheet" href="/NaiveBayesRecSys                                                                                                                                                                                                                                                                  /assets/base/css/tipsy.css" />
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-  <jsp:include page="/WEB-INF/jsp/analytics.inc.jsp"></jsp:include>
+  <title>Recommender System (Prototype)</title>
+  <link rel="stylesheet" type="text/css" href="<%= Config.SITE_URL %>/assets/base/css/bootstrap.min.css"/>
+  <link rel="stylesheet" type="text/css" href="<%= Config.SITE_URL %>/assets/base/css/local.css"/>
 </head>
 <body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Recommender System </a>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a >Purchase History</a></li>
+          <li><a >Logout</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
 
-<jsp:include page="/WEB-INF/jsp/menus/top.inc.jsp"></jsp:include>
 <div class="container">
-<hgroup>
 
-<% if(request.getAttribute("pageHeading") != null) { %>
-  <h1 class="hero-unit">${pageHeading}</h1>
-<% } %>
-
-</hgroup>
-
-    <div id="ajph">
-      <div id="sub_ajph">
      

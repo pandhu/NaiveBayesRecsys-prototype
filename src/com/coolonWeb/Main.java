@@ -43,7 +43,7 @@ public class Main extends HttpServlet{
             model.calculatePriorProb();
             model.assignUserInterests();
             //model.calculateConditionalProb();
-            //model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
+            model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
 
 
             System.out.println("model built successfuly");
