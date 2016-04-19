@@ -1,6 +1,7 @@
 package com.coolonWeb.controller;
 
 import com.coolonWeb.Main;
+import com.coolonWeb.model.User;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -19,9 +20,10 @@ public class BuyController extends HttpServlet {
                       HttpServletResponse response) throws ServletException, IOException {
         String idItem = request.getParameter("item");
         System.out.println(idItem);
-        HttpSession session = request.getSession(true);
-        String username = (String)session.getAttribute("username");
-        Main.model.buy(username,idItem);
+        System.out.println(request.getHeader("referer"));
+
+        User user = (User) request.getSession().getAttribute("user");
+        Main.model.buy(user.id,idItem);
         response.sendRedirect("/NaiveBayesRecSys/recommend");
     }
 }

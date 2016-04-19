@@ -43,8 +43,8 @@ public class Main extends HttpServlet{
             model.calculatePriorProb();
             model.assignUserInterests();
             //model.calculateConditionalProb();
-            model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
-
+            //model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
+            model.setConditionalProbs(new HashMap<String, Double>());
 
             System.out.println("model built successfuly");
         } catch (IOException e){
@@ -81,6 +81,30 @@ public class Main extends HttpServlet{
         System.out.println("Read conditional probability done");
         return conditionalProbs;
     }
+
+    public static HashMap<String, Double> readConditionalProbs() throws IOException{
+        System.out.println("Read conditional probability");
+        DBConnect db = new DBConnect();
+        db.setSql("SELECT * FROM conditional_probability");
+        ResultSet rs = db.execute();
+        HashMap<String, Double> conditionalProbs =  new HashMap<>();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                String tuple = rs.getString("tuple");
+                Double value = Double.parseDouble(rs.getString("value"));
+                conditionalProbs.put(tuple,value);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+        System.out.println("Read conditional probability done");
+        return conditionalProbs;
+    }
+
+
     public static ArrayList<String> readProduct(BufferedReader productReader) throws IOException {
         System.out.println("Read Product");
         String line;

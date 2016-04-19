@@ -6,6 +6,7 @@ package com.coolonWeb.model;
 public class Transaction{
     public String user;
     public String item;
+    public String itemName;
 
     @Override
     public String toString(){

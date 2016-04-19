@@ -1,6 +1,7 @@
 package com.coolonWeb.controller;
 
 import com.coolonWeb.Config;
+import com.coolonWeb.model.User;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,9 +15,18 @@ import java.io.IOException;
  */
 public class LoginController extends HttpServlet {
     public void doGet(HttpServletRequest request,
-                      HttpServletResponse response){
+                      HttpServletResponse response) throws ServletException, IOException {
         String path = request.getPathInfo();
-        if(path.equals("logout"));
+        System.out.println(path);
+        if(path == null) path = "";
+        switch (path){
+            case "":
+                return;
+            case "/logout":
+                this.logout(request,response);
+            default:
+                return;
+        }
     }
     public void doPost(HttpServletRequest request,
                        HttpServletResponse response) throws ServletException, IOException {
@@ -28,6 +38,7 @@ public class LoginController extends HttpServlet {
                 return;
             case "/doLogin":
                 this.login(request,response);
+                return;
             default:
                 return;
         }
@@ -36,11 +47,14 @@ public class LoginController extends HttpServlet {
                              HttpServletResponse response) throws ServletException, IOException {
         String userId = request.getParameter("vusername");
         HttpSession session = request.getSession();
-        session.setAttribute("userId", userId);
+        User user = User.find(userId);
+        System.out.println(user.id);
+        session.setAttribute("user", user);
         response.sendRedirect(Config.SITE_URL+"/dashboard");
     }
 
-    public static void logout(){
-
+    public static void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.getSession().removeAttribute("user");
+        response.sendRedirect(Config.SITE_URL+"/");
     }
 }

@@ -51,8 +51,7 @@
             </tr>
         </table>
 
-        <a class="btn btn-default btn-sm" href="">Using Levenshtein</a>
-        <a class="btn btn-default btn-sm" href="">Using Best Sales</a><br/><br/>
+        <a class="btn btn-default btn-sm" href="<%=Config.SITE_URL+"/buy?item="+item.id%>">Beli</a>
         <input type="button" class="btn btn-default btn-lg" value="Kembali" onClick="history.back(1)">
     </div>
     <div class="col-md-6">
@@ -62,7 +61,7 @@
             </tr>
               <%for(Item recommendedItem : (ArrayList<Item>)request.getAttribute("recommendedItems")) {%>
             <tr>
-                <td><a href="<%=Config.SITE_URL+"item/detail?id="+recommendedItem.id%>"><%=recommendedItem.name%></a></td>
+                <td><a href="<%=Config.SITE_URL+"/item/detail?id="+recommendedItem.id%>"><%=recommendedItem.name%></a></td>
             </tr>
             <%}%>
 		</table>

@@ -3,6 +3,7 @@ package com.coolonWeb.controller;
 import com.coolonWeb.DBConnect;
 import com.coolonWeb.Main;
 import com.coolonWeb.model.Item;
+import com.coolonWeb.model.User;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -58,9 +59,12 @@ public class ItemController extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        ArrayList<Item> recommendedItems = Main.model.makeTopNRecommendation((String) request.getSession().getAttribute("userId"),10);
+
+        ArrayList<Item> recommendedItems = Main.model.makeTopNRecommendation(((User) request.getSession().getAttribute("user")).id,10);
         request.setAttribute("item", item);
         request.setAttribute("recommendedItems", recommendedItems);
         request.getRequestDispatcher("/item-detail.jsp").forward(request,response);
     }
+
+
 }

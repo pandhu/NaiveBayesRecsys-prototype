@@ -13,9 +13,9 @@
 <jsp:include page="/WEB-INF/jsp/header.inc.jsp"></jsp:include>
 
 <h1>Daftar Barang</h1>
-<?php $baris = $hasilnya[0]?>
 <ol class="breadcrumb">
-<li>Dashboard</li>
+    <li><a href="<%=Config.SITE_URL+"/dashboard"%>">Dashboard</a></li>
+    <li><a><%=request.getAttribute("cat1")%></a></li>
 </ol>
 <div class="col-md-6">
     <table class="table table-hover">
@@ -27,26 +27,9 @@
             int count = 1;
             for(Category category : (ArrayList<Category>)request.getAttribute("categories")) {%>
         <tr>
-            <td><%=count++%></td><td><a href="<%=Config.SITE_URL+"/category/lvl1?cat1="+URLEncoder.encode(category.name, "UTF-8")%>"><%=category.name%></a></td>
+            <td><%=count++%></td><td><a href="<%=Config.SITE_URL+"/category/lvl2?cat1="+URLEncoder.encode((String) request.getAttribute("cat1"), "UTF-8")+"&cat2="+URLEncoder.encode(category.name, "UTF-8")%>"><%=category.name%></a></td>
         </tr>
         <%}%>
     </table>
-</div>
-<div class="col-md-6">
-
-    <table class="table table-hover">
-        <tr>
-            <th>Nama Produk Rekomendasi</th>
-        </tr>
-
-        <%if(request.getAttribute("recommendedItems") != null){
-            for(Item item : (ArrayList<Item>)request.getAttribute("recommendedItems")) {%>
-        <tr>
-            <td><a href="<%=Config.SITE_URL+"item/detail?id="+item.id%>"><%=item.name%></a></td>
-        </tr>
-        <% }
-        }%>
-	</table>
-
 </div>
 <jsp:include page="/WEB-INF/jsp/footer.inc.jsp"></jsp:include>

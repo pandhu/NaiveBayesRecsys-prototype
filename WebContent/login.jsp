@@ -33,7 +33,7 @@
 
 <div class="inner cover">
     <h1 class="cover-heading">Login Page</h1>
-    <form method="post" action="<%= Config.SITE_URL %>/login/doLogin">
+    <form method="post" action="<%= Config.SITE_URL %>/auth/doLogin">
 
     <div class="form-group">
         <label for="exampleInputEmail1">Member ID</label>

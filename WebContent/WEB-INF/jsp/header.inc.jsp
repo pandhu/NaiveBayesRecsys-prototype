@@ -1,4 +1,5 @@
 <%@ page import="com.coolonWeb.Config" %>
+<%@ page import="com.coolonWeb.model.User" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,11 +22,11 @@
     <ul class="nav navbar-nav navbar-right">
       <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-          <span class="caret"></span>
+          <%=((User)request.getSession().getAttribute("user")).id%><span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-          <li><a >Purchase History</a></li>
-          <li><a >Logout</a></li>
+          <li><a href="<%=Config.SITE_URL+"/user/transactions"%>">Purchase History</a></li>
+          <li><a href="<%=Config.SITE_URL+"/auth/logout"%>">Logout</a></li>
         </ul>
       </li>
     </ul>
