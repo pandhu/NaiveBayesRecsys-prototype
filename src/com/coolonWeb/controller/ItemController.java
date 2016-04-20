@@ -3,6 +3,7 @@ package com.coolonWeb.controller;
 import com.coolonWeb.DBConnect;
 import com.coolonWeb.Main;
 import com.coolonWeb.model.Item;
+import com.coolonWeb.model.Transaction;
 import com.coolonWeb.model.User;
 
 import javax.servlet.RequestDispatcher;
@@ -31,6 +32,13 @@ public class ItemController extends HttpServlet {
                 return;
             case "/detail":
                 this.itemDetail(request,response);
+                return;
+            case "/upvote":
+                this.itemUpVote(request, response);
+                return;
+            case "/downvote":
+                this.itemUpVote(request, response);
+                return;
             default:
                 return;
         }
@@ -60,10 +68,31 @@ public class ItemController extends HttpServlet {
             e.printStackTrace();
         }
 
-        ArrayList<Item> recommendedItems = Main.model.makeTopNRecommendation(((User) request.getSession().getAttribute("user")).id,10);
+        ArrayList<Transaction> transactions = ((User)request.getSession().getAttribute("user")).getAllTransactions();
         request.setAttribute("item", item);
-        request.setAttribute("recommendedItems", recommendedItems);
-        request.getRequestDispatcher("/item-detail.jsp").forward(request,response);
+        System.out.println(item.name);
+        request.setAttribute("transactions", transactions);
+        request.getRequestDispatcher("/views/item-detail.jsp").forward(request,response);
+    }
+
+    public static void itemUpVote(HttpServletRequest request,
+                                  HttpServletResponse response) throws ServletException, IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String idItem = request.getParameter("id");
+        int stage = Integer.parseInt(request.getParameter("stage"));
+        ArrayList<Item> recommendedItem = (ArrayList<Item>) request.getSession().getAttribute("recommendedItem");
+        recommendedItem.get(stage).upvoted = true;
+        response.sendRedirect("/recommendation/topN?stage="+(stage+1));
+    }
+
+    public static void itemDownVote(HttpServletRequest request,
+                                  HttpServletResponse response) throws ServletException, IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String idItem = request.getParameter("id");
+        int stage = Integer.parseInt(request.getParameter("stage"));
+        ArrayList<Item> recommendedItem = (ArrayList<Item>) request.getSession().getAttribute("recommendedItem");
+        recommendedItem.get(stage).upvoted = false;
+        response.sendRedirect("/recommendation/topN?stage="+(stage+1));
     }
 
 

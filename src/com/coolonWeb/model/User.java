@@ -1,6 +1,7 @@
 package com.coolonWeb.model;
 
 import com.coolonWeb.DBConnect;
+import com.coolonWeb.Main;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +14,11 @@ public class User {
     public String id;
     public String ageGroup;
     public String gender;
+    public ArrayList<Item> itemTransactions;
 
+    public User(){
+        this.itemTransactions = new ArrayList<>();
+    }
     public ArrayList<Transaction> getTransactions(int numberOfTransaction){
         ArrayList<Transaction> transactions = new ArrayList<>();
         DBConnect db = new DBConnect();
@@ -55,7 +60,17 @@ public class User {
         }
         return transactions;
     }
-
+    public ArrayList<Transaction> getAllTransactionsInModel(){
+        ArrayList<Transaction> transactions = new ArrayList<>();
+        for(Item item:Main.model.getUserHistoryTransaction(this.id) ){
+            Transaction transaction = new Transaction();
+            transaction.user = this.id;
+            transaction.item = item.id;
+            transaction.itemName = item.name;
+            transactions.add(transaction);
+        }
+        return transactions;
+    }
     public static User find(String id){
         ArrayList<Transaction> transactions = new ArrayList<>();
         DBConnect db = new DBConnect();

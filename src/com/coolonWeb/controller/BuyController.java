@@ -1,6 +1,9 @@
 package com.coolonWeb.controller;
 
+import com.coolonWeb.Config;
 import com.coolonWeb.Main;
+import com.coolonWeb.model.Item;
+import com.coolonWeb.model.Transaction;
 import com.coolonWeb.model.User;
 
 import javax.servlet.RequestDispatcher;
@@ -21,9 +24,14 @@ public class BuyController extends HttpServlet {
         String idItem = request.getParameter("item");
         System.out.println(idItem);
         System.out.println(request.getHeader("referer"));
-
         User user = (User) request.getSession().getAttribute("user");
-        Main.model.buy(user.id,idItem);
-        response.sendRedirect("/NaiveBayesRecSys/recommend");
+        Main.model.buy(user.id, idItem);
+        Item item = Item.find(idItem);
+        user.itemTransactions.add(item);
+        if (user.itemTransactions.size() < 1) {
+            response.sendRedirect(request.getHeader("referer"));
+        } else {
+            response.sendRedirect(Config.SITE_URL+"/recommendation");
+        }
     }
 }

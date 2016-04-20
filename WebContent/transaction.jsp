@@ -12,7 +12,7 @@
 
 <h1>Daftar History Purchase</h1>
 <ol class="breadcrumb">
-    <li><a href="/<%= Config.SITE_URL%>">Home</a></li>
+    <li><a href="<%= Config.SITE_URL+"/dashboard"%>">Home</a></li>
     <li class="active">History</li>
 </ol>
 <div class="col-md-6">
@@ -30,5 +30,6 @@
         <%}%>
     </table>
 </div>
+<div class="margin-bottom-40"></div>
 <jsp:include page="/WEB-INF/jsp/footer.inc.jsp"></jsp:include>
 

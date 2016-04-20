@@ -60,6 +60,12 @@
   </servlet>
 
   <servlet>
+    <servlet-name>ColdStartTestController</servlet-name>
+    <servlet-class>com.coolonWeb.controller.ColdStartTestController</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
     <servlet-name>ItemController</servlet-name>
     <servlet-class>com.coolonWeb.controller.ItemController</servlet-class>
     <load-on-startup>1</load-on-startup>
@@ -67,7 +73,12 @@
 
   <servlet-mapping>
     <servlet-name>RecommendController</servlet-name>
-    <url-pattern>/recommend</url-pattern>
+    <url-pattern>/recommendation/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ColdStartTestController</servlet-name>
+    <url-pattern>/coldStartTest/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

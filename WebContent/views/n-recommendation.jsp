@@ -1,7 +1,8 @@
 <%@ page import="com.coolonWeb.model.Item" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="com.coolonWeb.Config" %>
-<%@ page import="java.net.URLEncoder" %><%--
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="com.coolonWeb.model.Transaction" %><%--
   Created by IntelliJ IDEA.
   User: root
   Date: 11/04/16
@@ -13,7 +14,9 @@
 <div id="container">
     <h1>Detil Produk</h1>
     <%
-        Item item = (Item) request.getAttribute("item");
+        ArrayList<Item> recommendation = (ArrayList<Item>) request.getSession().getAttribute("recommendedItem");
+        int stage = Integer.parseInt(request.getParameter("stage"));
+        Item item = Item.find(recommendation.get(stage-1).id);
     %>
     <ol class="breadcrumb">
         <li><a href="<%=Config.SITE_URL+"/dashboard"%>">Dashboard</a></li>
@@ -52,25 +55,16 @@
             </tr>
         </table>
 
-        <a class="btn btn-default btn-sm" href="<%=Config.SITE_URL+"/buy?item="+item.id%>">Beli</a>
-        <input type="button" class="btn btn-default btn-lg" value="Kembali" onClick="history.back(1)">
+        <a class="btn btn-default btn-lg" href="<%=Config.SITE_URL+"/item/upvote?id="+item.id+"&stage="+stage%>">Beli</a>
+        <a class="btn btn-default btn-lg" href="<%=Config.SITE_URL+"/item/downvote?id="+item.id+"&stage="+stage%>">Tidak</a>
     </div>
     <div class="col-md-6">
-	  <table class="table table-hover">
-            <tr>
-                <th>Nama Produk Rekomendasi</th>
-            </tr>
-              <%for(Item recommendedItem : (ArrayList<Item>)request.getAttribute("recommendedItems")) {%>
-            <tr>
-                <td><a href="<%=Config.SITE_URL+"/item/detail?id="+recommendedItem.id%>"><%=recommendedItem.name%></a></td>
-            </tr>
-            <%}%>
-		</table>
-
+        <jsp:include page="/views/trasactionHistory.jsp"></jsp:include>
     </div>
 </div>
 <br/><br/>
 
 
 <jsp:include page="/WEB-INF/jsp/footer.inc.jsp"></jsp:include>
+
 

@@ -15,7 +15,10 @@
 <h1>Daftar Barang</h1>
 <?php $baris = $hasilnya[0]?>
 <ol class="breadcrumb">
-    <li>Dashboard</li>
+    <li><a href="<%=Config.SITE_URL+"/dashboard"%>">Dashboard</a></li>
+    <li><a href="<%=Config.SITE_URL+"/category/lvl1?cat1="+ URLEncoder.encode((String) request.getAttribute("cat1"), "UTF-8")%>"><%=request.getAttribute("cat1")%></a></li>
+    <li><a href="<%=Config.SITE_URL+"/category/lvl2?cat1="+URLEncoder.encode((String) request.getAttribute("cat1"), "UTF-8")+"&cat2="+URLEncoder.encode((String) request.getAttribute("cat2"), "UTF-8")%>"><%=request.getAttribute("cat2")%></a></li>
+    <li><a class="active"><%=request.getAttribute("cat3")%></a></li>
 </ol>
 <div class="col-md-6">
     <table class="table table-hover">

@@ -37,7 +37,7 @@ public class HomeController extends HttpServlet {
 
     public void showHome(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher rd = request.getRequestDispatcher("/login.jsp");
+        RequestDispatcher rd = request.getRequestDispatcher("/views/welcome.jsp");
         rd.forward(request,response);
 
     }

@@ -12,6 +12,7 @@ public class Item{
     public String category1;
     public String category2;
     public String category3;
+    public boolean upvoted;
 
     public static ArrayList<Item> getItemByCategory(String lvl1, String lvl2, String lvl3){
         ArrayList<Item> items = new ArrayList<>();
@@ -36,6 +37,29 @@ public class Item{
         }
         db.closeConnection();
         return items;
+    }
+
+    public static Item find(String id){
+        DBConnect db = new DBConnect();
+        String sql = "SELECT * FROM product WHERE PRODUCT_NUMBER_ENC='"+id+"'";
+        db.setSql(sql);
+        ResultSet rs = db.execute();
+        Item item = new Item();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                item.name = rs.getString("PRODUCT_NAME");
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.category1 = rs.getString("LV1_CATEGORY");
+                item.category2 = rs.getString("LV2_CATEGORY");
+                item.category3 = rs.getString("LV3_CATEGORY");
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+        return item;
     }
 
 }
