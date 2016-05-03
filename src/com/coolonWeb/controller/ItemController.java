@@ -42,8 +42,6 @@ public class ItemController extends HttpServlet {
             default:
                 return;
         }
-
-
     }
 
     public static void itemDetail(HttpServletRequest request,

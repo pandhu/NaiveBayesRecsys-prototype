@@ -28,7 +28,7 @@ public class BuyController extends HttpServlet {
         Main.model.buy(user.id, idItem);
         Item item = Item.find(idItem);
         user.itemTransactions.add(item);
-        if (user.itemTransactions.size() < 1) {
+        if (user.itemTransactions.size() < 5    ) {
             response.sendRedirect(request.getHeader("referer"));
         } else {
             response.sendRedirect(Config.SITE_URL+"/recommendation");

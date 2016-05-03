@@ -43,8 +43,8 @@ public class Main extends HttpServlet{
             model.calculatePriorProb();
             model.assignUserInterests();
             //model.calculateConditionalProb();
-            //model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
-            model.setConditionalProbs(new HashMap<String, Double>());
+            model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
+            //model.setConditionalProbs(new HashMap<String, Double>());
 
             System.out.println("model built successfuly");
         } catch (IOException e){
