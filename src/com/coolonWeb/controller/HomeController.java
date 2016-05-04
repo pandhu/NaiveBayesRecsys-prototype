@@ -45,7 +45,7 @@ public class HomeController extends HttpServlet {
     public void showDashboard(HttpServletRequest request,
                               HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher rd = request.getRequestDispatcher("/home.jsp");
-        String newUsername = "usr"+Main.model.getItems().size();
+        String newUsername = "usr"+Main.model.getDataset().items.size();
         System.out.println("new username: "+newUsername);
         Main.model.registerNewUser(newUsername);
         HttpSession session = request.getSession();

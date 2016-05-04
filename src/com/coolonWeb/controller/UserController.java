@@ -71,7 +71,7 @@ public class UserController extends HttpServlet{
 
     public void registerUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User newUser = new User();
-        int count = Main.model.getUsers().size();
+        int count = Main.model.getDataset().users.size();
         newUser.id = count+"";
         Main.model.registerNewUser(newUser.id);
         request.setAttribute("user", newUser);

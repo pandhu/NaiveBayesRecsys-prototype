@@ -2,9 +2,12 @@ package com.coolonWeb;
 import com.coolonWeb.model.Item;
 import com.coolonWeb.model.NaiveBayesModel;
 import com.coolonWeb.model.Transaction;
+import com.coolonWeb.testing.DataSet;
+import com.coolonWeb.testing.Testing;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,7 +18,7 @@ import java.util.*;
  */
 public class Main extends HttpServlet{
     public static NaiveBayesModel model;
-
+    public static DataSet universe;
     public void init() throws ServletException {
 
         try {
@@ -35,15 +38,25 @@ public class Main extends HttpServlet{
             BufferedReader memberReader = new BufferedReader(new InputStreamReader(isMemberReader));
             BufferedReader conditionalProbReader = new BufferedReader(new InputStreamReader(isConditionalProb));
 
+            DataSet dataset = new DataSet();
+            dataset.users = readMember(memberReader);
+            dataset.items = readProduct(productReader);
+            dataset.transactions = readTransaction(transactionReader);
+            dataset.assignUserInterests();
+            //dataset.sortUserInterestsByNumberOfItem();
+            dataset.printStatDataSet();
+            dataset.removeNonPurchasedFromUserInterests();
+            dataset.removeUnsoldItems();
+            dataset.printStatDataSet();
+            this.universe = dataset;
+            offlineTesting();
+
             model = new NaiveBayesModel();
-            model.setItems(readProduct(productReader));
-            model.setItemsData(readProductData(productDataReader));
-            model.setUsers(readMember(memberReader));
-            model.setTransactions(readTransaction(transactionReader));
+            model.setDataset(dataset);
             model.calculatePriorProb();
-            model.assignUserInterests();
             //model.calculateConditionalProb();
-            model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
+            //model.makeTopNRecommendation("4294526856", 10);
+            //model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
             //model.setConditionalProbs(new HashMap<String, Double>());
 
             System.out.println("model built successfuly");
@@ -161,4 +174,15 @@ public class Main extends HttpServlet{
             System.out.println(pair.getKey() + " = " + pair.getValue());
         }
     }
+
+    public static void offlineTesting(){
+        Testing testing = new Testing();
+        testing.universe = universe;
+        testing.ratio = 75;
+        testing.splitDataByRatio();
+        testing.trainingDataSet.printStatDataSet();
+        testing.testingDataSet.printStatDataSet();
+        testing.executeTest();
+    }
+
 }

@@ -1,28 +1,24 @@
 package com.coolonWeb.model;
 
+import com.coolonWeb.testing.DataSet;
+
 import java.util.*;
 
 /**
  * Created by pandhu on 30/03/16.
  */
 public class NaiveBayesModel {
-    private ArrayList<String> users;
-    private HashMap<String, Item> itemsData;
-    private ArrayList<String> items;
+
+
+    private DataSet dataset;
     private HashMap<String, Double> priorProbs;
-    private ArrayList<Transaction> transactions;
-    private HashMap<String, ArrayList<String>> userInterests;
     private HashMap<String, Double> conditionalProbs;
     private static final int CN= 3;
     public NaiveBayesModel() {
         System.out.println("init model");
-        this.users = new ArrayList<>();
-        this.items = new ArrayList<>();
         this.priorProbs = new HashMap<>();
-        this.transactions = new ArrayList<>();
-        this.userInterests = new HashMap<>();
         this.conditionalProbs = new HashMap<>();
-        this.itemsData = new HashMap<>();
+        this.dataset = new DataSet();
         System.out.println("init model done");
     }
 
@@ -30,12 +26,12 @@ public class NaiveBayesModel {
         System.out.println("Assign User Interest");
 
         //initial user interests
-        for(String user : users){
-            this.userInterests.put(user, new ArrayList<String>());
+        for(String user : dataset.users){
+            this.dataset.userInterests.put(user, new ArrayList<String>());
         }
-        for(Transaction transaction : transactions){
-            if(!this.userInterests.get(transaction.user).contains(transaction.item))
-                this.userInterests.get(transaction.user).add(transaction.item);
+        for(Transaction transaction : dataset.transactions){
+            if(!this.dataset.userInterests.get(transaction.user).contains(transaction.item))
+                this.dataset.userInterests.get(transaction.user).add(transaction.item);
         }
         System.out.println("Assign User Interest done");
 
@@ -45,7 +41,7 @@ public class NaiveBayesModel {
         HashMap<String, HashMap<String, Integer>> hasVote = new HashMap<>();
         HashMap<String, Integer> countProbs = new HashMap<>();
 
-        for(Transaction transaction : this.transactions){
+        for(Transaction transaction : this.dataset.transactions){
             //kalo si item baru muncul di transaksi
             if(hasVote.get(transaction.item) == null){
                 hasVote.put(transaction.item, new HashMap<String, Integer>());
@@ -64,7 +60,7 @@ public class NaiveBayesModel {
         Iterator it = countProbs.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
-            double priorProbability = ((int) pair.getValue()/1.0)/users.size();
+            double priorProbability = ((int) pair.getValue()/1.0)/dataset.users.size();
             this.priorProbs.put(""+pair.getKey(), priorProbability);
         }
         System.out.println("calculate prior probabilistic done");
@@ -74,9 +70,11 @@ public class NaiveBayesModel {
         System.out.println("Start calculate conditional probabilistic");
 
         HashMap<String, Integer> count = new HashMap<>();
-        for(String user : users){
-            for(String itemA: userInterests.get(user)){
-                for(String itemB: userInterests.get(user)) {
+        for(String user : dataset.users){
+            if(dataset.userInterests.get(user) == null)
+                continue;
+            for(String itemA: dataset.userInterests.get(user)){
+                for(String itemB: dataset.userInterests.get(user)) {
                     if (!itemA.equals(itemB)) {
                         //kalo belom ada
                         if(count.get(itemA+","+itemB) == null){
@@ -92,7 +90,7 @@ public class NaiveBayesModel {
         Iterator it = count.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
-            double jointProb = ((int) pair.getValue()/1.0)/users.size();
+            double jointProb = ((int) pair.getValue()/1.0)/dataset.users.size();
             double conditionalProb = jointProb/this.priorProbs.get(pair.getKey().toString().split(",")[1]);
             this.conditionalProbs.put(pair.getKey().toString(), conditionalProb);
         }
@@ -102,10 +100,10 @@ public class NaiveBayesModel {
     public ArrayList<Item> makeTopNRecommendation(String user, int n){
         HashMap<String, Double> recommendedItems = new HashMap<>();
         int cn = CN;
-        if(this.userInterests.get(user).size() < cn);
-        cn = this.userInterests.get(user).size();
+        if(this.dataset.userInterests.get(user).size() < cn);
+        cn = this.dataset.userInterests.get(user).size();
 
-        for(String item: this.items){
+        for(String item: this.dataset.items){
             //System.out.println("new item");
             double priorProbs;
             if (this.priorProbs.get(item) == null){
@@ -115,7 +113,7 @@ public class NaiveBayesModel {
                 priorProbs = this.priorProbs.get(item);
             }
             double recProbs = priorProbs;
-            for(String itemInterest: this.userInterests.get(user)){
+            for(String itemInterest: this.dataset.userInterests.get(user)){
                 double conditionalProbs;
                 if(this.conditionalProbs.get(itemInterest+","+item) == null){
                     continue;
@@ -124,7 +122,7 @@ public class NaiveBayesModel {
                 }
                 double value;
                 if(this.priorProbs.get(itemInterest)!=null)
-                    value = Math.pow(conditionalProbs/this.priorProbs.get(itemInterest), cn / this.userInterests.get(user).size());
+                    value = Math.pow(conditionalProbs/this.priorProbs.get(itemInterest), cn / this.dataset.userInterests.get(user).size());
                 else
                     value = 0;
                 recProbs = recProbs * value;
@@ -140,31 +138,31 @@ public class NaiveBayesModel {
         for (int ii = 0; ii < n; ii++) {
             Map.Entry pair = (Map.Entry)it.next();
             System.out.println(pair.getValue());
-            Item recommendedItem = this.itemsData.get((String)pair.getKey());
+            Item recommendedItem = this.dataset.itemsData.get((String)pair.getKey());
             nRecommendedItems.add(recommendedItem);
         }
         return nRecommendedItems;
     }
     public void printUsers(){
-        for(String user: this.users){
+        for(String user: this.dataset.users){
             System.out.println(user);
         }
     }
 
     public void printItems(){
-        for(String item: this.items){
+        for(String item: this.dataset.items){
             System.out.println(item);
         }
     }
 
     public void printTransaction(){
-        for(Transaction transaction : transactions){
+        for(Transaction transaction : this.dataset.transactions){
             System.out.println(transaction);
         }
     }
 
     public void printUserInterests(){
-        Map mp = this.userInterests;
+        Map mp = this.dataset.userInterests;
         Iterator it = mp.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
@@ -177,20 +175,22 @@ public class NaiveBayesModel {
         }
     }
 
+
+
     public void setUsers(ArrayList<String> users){
-        this.users = users;
+        this.dataset.users = users;
     }
     public void setItems(ArrayList<String> items){
-        this.items = items;
+        this.dataset.items = items;
     }
     public void setTransactions(ArrayList<Transaction> transasctons){
-        this.transactions = transasctons;
+        this.dataset.transactions = transasctons;
     }
     public void setConditionalProbs(HashMap<String, Double> conditionalProbs) {
         this.conditionalProbs = conditionalProbs;
     }
     public void setItemsData(HashMap<String, Item> itemsData) {
-        this.itemsData = itemsData;
+        this.dataset.itemsData = itemsData;
     }
 
     public void printPriorProbs() {
@@ -213,10 +213,10 @@ public class NaiveBayesModel {
         }
     }
     public ArrayList<Item> getUserHistoryTransaction(String idUser){
-        ArrayList<String> items =  this.userInterests.get(idUser);
+        ArrayList<String> items =  this.dataset.userInterests.get(idUser);
         ArrayList<Item> transItems = new ArrayList<>();
         for(String item : items){
-            Item transItem = this.itemsData.get(item);
+            Item transItem = this.dataset.itemsData.get(item);
             transItems.add(transItem);
         }
         return transItems;
@@ -224,8 +224,8 @@ public class NaiveBayesModel {
 
     public void buy(String idUser, String idItem){
         System.out.println(idUser+" buy "+idItem);
-        if(!this.userInterests.get(idUser).contains(idItem)){
-            this.userInterests.get(idUser).add(idItem);
+        if(!this.dataset.userInterests.get(idUser).contains(idItem)){
+            this.dataset.userInterests.get(idUser).add(idItem);
         }
         return;
     }
@@ -281,37 +281,29 @@ public class NaiveBayesModel {
     }
 
     public void registerNewUser(String id){
-        this.users.add(id);
-        this.userInterests.put(id, new ArrayList<String>());
+        this.dataset.users.add(id);
+        this.dataset.userInterests.put(id, new ArrayList<String>());
         System.out.println("new user registered with id "+id);
     }
 
-    public ArrayList<String> getUsers() {
-        return users;
-    }
 
-    public ArrayList<String> getItems() {
-        return items;
-    }
 
     public HashMap<String, Double> getPriorProbs() {
         return priorProbs;
-    }
-
-    public ArrayList<Transaction> getTransactions() {
-        return transactions;
-    }
-
-    public HashMap<String, ArrayList<String>> getUserInterests() {
-        return userInterests;
     }
 
     public HashMap<String, Double> getConditionalProbs() {
         return conditionalProbs;
     }
 
-    public HashMap<String, Item> getItemsData() {
-        return itemsData;
+    public DataSet getDataset() {
+        return dataset;
     }
+
+    public void setDataset(DataSet dataset) {
+        this.dataset = dataset;
+    }
+
+
 }
 
