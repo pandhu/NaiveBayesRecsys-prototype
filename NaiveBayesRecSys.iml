@@ -22,5 +22,6 @@
     <orderEntry type="library" name="servlet-api" level="project" />
     <orderEntry type="library" name="Java EE 6-Java EE 6" level="project" />
     <orderEntry type="library" exported="" name="com.mysql.jdbc_5.1.5" level="project" />
+    <orderEntry type="library" name="weka" level="project" />
   </component>
 </module>

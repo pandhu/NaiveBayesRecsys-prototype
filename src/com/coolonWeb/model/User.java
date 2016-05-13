@@ -62,7 +62,7 @@ public class User {
     }
     public ArrayList<Transaction> getAllTransactionsInModel(){
         ArrayList<Transaction> transactions = new ArrayList<>();
-        for(Item item:Main.model.getUserHistoryTransaction(this.id) ){
+        for(Item item:Main.naiveBayesModel.getUserHistoryTransaction(this.id) ){
             Transaction transaction = new Transaction();
             transaction.user = this.id;
             transaction.item = item.id;

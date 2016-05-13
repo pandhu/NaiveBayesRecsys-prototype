@@ -61,6 +61,9 @@ public class Item{
         db.closeConnection();
         return item;
     }
-
+    @Override
+    public String toString(){
+        return this.id+"#"+this.name;
+    }
 }
 

@@ -60,6 +60,13 @@
   </servlet>
 
   <servlet>
+    <servlet-name>SurveyController</servlet-name>
+    <servlet-class>com.coolonWeb.controller.SurveyController</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+
+  <servlet>
     <servlet-name>ColdStartTestController</servlet-name>
     <servlet-class>com.coolonWeb.controller.ColdStartTestController</servlet-class>
     <load-on-startup>1</load-on-startup>
@@ -94,6 +101,11 @@
   <servlet-mapping>
     <servlet-name>UserController</servlet-name>
     <url-pattern>/user/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>SurveyController</servlet-name>
+    <url-pattern>/survey/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

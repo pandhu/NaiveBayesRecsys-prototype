@@ -1,7 +1,5 @@
 package com.coolonWeb;
-import com.coolonWeb.model.Item;
-import com.coolonWeb.model.NaiveBayesModel;
-import com.coolonWeb.model.Transaction;
+import com.coolonWeb.model.*;
 import com.coolonWeb.testing.DataSet;
 import com.coolonWeb.testing.Testing;
 
@@ -17,7 +15,9 @@ import java.util.*;
  * Created by pandhu on 30/03/16.
  */
 public class Main extends HttpServlet{
-    public static NaiveBayesModel model;
+    public static NaiveBayesModel naiveBayesModel;
+    public static MemoryBasedModel memoryBasedModel;
+    public static SVDModel svdModel;
     public static DataSet universe;
     public void init() throws ServletException {
 
@@ -49,15 +49,22 @@ public class Main extends HttpServlet{
             dataset.removeUnsoldItems();
             dataset.printStatDataSet();
             this.universe = dataset;
-            offlineTesting();
+            //offlineTesting();
 
-            model = new NaiveBayesModel();
-            model.setDataset(dataset);
-            model.calculatePriorProb();
-            //model.calculateConditionalProb();
-            //model.makeTopNRecommendation("4294526856", 10);
-            //model.setConditionalProbs(readConditionalProbs(conditionalProbReader));
-            //model.setConditionalProbs(new HashMap<String, Double>());
+            naiveBayesModel = new NaiveBayesModel();
+            naiveBayesModel.setDataset(dataset);
+            naiveBayesModel.calculatePriorProb();
+            naiveBayesModel.calculateConditionalProb();
+            naiveBayesModel.makeTopNRecommendation("4294526856", 10);
+            //naiveBayesModel.setConditionalProbs(readConditionalProbs(conditionalProbReader));
+            //naiveBayesModel.setConditionalProbs(new HashMap<String, Double>());
+
+
+            //svdModel = new SVDModel(dataset);
+
+            MemoryBasedModel memoryBased = new MemoryBasedModel();
+            System.out.print("Out: ");
+            System.out.println(memoryBased.getRecommendationByUser("833152953"));
 
             System.out.println("model built successfuly");
         } catch (IOException e){
