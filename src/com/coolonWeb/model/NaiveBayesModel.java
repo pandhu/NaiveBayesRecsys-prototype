@@ -304,6 +304,8 @@ public class NaiveBayesModel {
         this.dataset = dataset;
     }
 
-
+    public void setPriorProbs(HashMap<String, Double> priorProbs) {
+        this.priorProbs = priorProbs;
+    }
 }
 

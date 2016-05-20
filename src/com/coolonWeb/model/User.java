@@ -14,6 +14,8 @@ public class User {
     public String id;
     public String ageGroup;
     public String gender;
+    public String email;
+    public String phone;
     public ArrayList<Item> itemTransactions;
 
     public User(){
@@ -62,7 +64,7 @@ public class User {
     }
     public ArrayList<Transaction> getAllTransactionsInModel(){
         ArrayList<Transaction> transactions = new ArrayList<>();
-        for(Item item:Main.naiveBayesModel.getUserHistoryTransaction(this.id) ){
+        for(Item item:Main.naiveBayesModel1.getUserHistoryTransaction(this.id) ){
             Transaction transaction = new Transaction();
             transaction.user = this.id;
             transaction.item = item.id;
@@ -90,5 +92,9 @@ public class User {
         }
         db.closeConnection();
         return user;
+    }
+    @Override
+    public String toString(){
+        return this.email+"|"+this.ageGroup+"|"+this.phone+"|"+this.gender;
     }
 }

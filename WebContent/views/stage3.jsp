@@ -22,22 +22,16 @@
 
             <div class="masthead clearfix">
                 <div class="inner">
-                    <h3 class="masthead-brand">Recommender System - Simulation</h3>
-                    <nav>
-                        <ul class="nav masthead-nav">
-                            <li class="active"><a href="#">Home</a></li>
-                        </ul>
-                    </nav>
+                    <h3 class="masthead-brand">Recommender System - Simulation Stage 3</h3>
                 </div>
             </div>
 
             <div class="inner cover">
-                <h1 class="cover-heading">Selamat Datang</h1>
+                <h1 class="cover-heading">Tahap 3 - Final</h1>
                 <p>
-                    Kami dari Tim Riset Sistem Rekomendasi Fasilkom UI sedang melakukan riset terkait pengembangan sistem
-                    rekomendasi dengan pendekatan Model-based dan Memory-based Collaborative Filtering.
+                    Pada tahap ini akan disimulasikan skenario yang sama seperti tahap sebelumnya namun dengan penambahan data dalam database untuk melihat scalability dan adaptibility sistem
                 </p>
-                <a class="btn btn-lg btn-default" href="<%=Config.SITE_URL%>/survey/basicInformation">Lanjutkan</a>
+                <a class="btn btn-lg btn-default" href="<%=Config.SITE_URL%>/survey/testTime/methodA/part3">Lanjutkan</a>
             </div>
             <div class="mastfoot">
                 <div class="inner">

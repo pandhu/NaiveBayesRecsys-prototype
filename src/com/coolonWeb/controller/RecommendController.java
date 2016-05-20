@@ -36,7 +36,7 @@ public class RecommendController extends HttpServlet {
                       HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher rd = request.getRequestDispatcher("/views/recommendation.jsp");
         User user = (User) request.getSession().getAttribute("user");
-        ArrayList<Item> recommendedItem = Main.naiveBayesModel.makeTopNRecommendation(user.id, 5);
+        ArrayList<Item> recommendedItem = Main.naiveBayesModel1.makeTopNRecommendation(user.id, 5);
         request.getSession().setAttribute("recommendedItem", recommendedItem);
         rd.forward(request,response);
     }

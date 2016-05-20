@@ -134,6 +134,6 @@
   </servlet-mapping>
 
   <welcome-file-list>
-    <welcome-file>home</welcome-file>
+    <welcome-file>survey/welcome</welcome-file>
   </welcome-file-list>
 </web-app>

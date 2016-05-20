@@ -45,9 +45,9 @@ public class HomeController extends HttpServlet {
     public void showDashboard(HttpServletRequest request,
                               HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher rd = request.getRequestDispatcher("/home.jsp");
-        String newUsername = "usr"+Main.naiveBayesModel.getDataset().items.size();
+        String newUsername = "usr"+Main.naiveBayesModel1.getDataset().items.size();
         System.out.println("new username: "+newUsername);
-        Main.naiveBayesModel.registerNewUser(newUsername);
+        Main.naiveBayesModel1.registerNewUser(newUsername);
         HttpSession session = request.getSession();
         session.setAttribute("username", newUsername);
         //ArrayList<Item> items = Main.model.makeTopNRecommendation(newUsername, 100);

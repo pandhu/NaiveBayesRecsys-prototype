@@ -13,7 +13,6 @@
 <jsp:include page="/WEB-INF/jsp/header.inc.jsp"></jsp:include>
 
 <h1>Daftar Barang</h1>
-<?php $baris = $hasilnya[0]?>
 <ol class="breadcrumb">
 <li>Dashboard</li>
 </ol>

@@ -59,7 +59,7 @@
         <a class="btn btn-default btn-lg" href="<%=Config.SITE_URL+"/item/downvote?id="+item.id+"&stage="+stage%>">Tidak</a>
     </div>
     <div class="col-md-6">
-        <jsp:include page="/views/trasactionHistory.jsp"></jsp:include>
+        <jsp:include page="/views/transactionHistory.jsp"></jsp:include>
     </div>
 </div>
 <br/><br/>

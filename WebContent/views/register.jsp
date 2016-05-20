@@ -58,11 +58,8 @@
                     <p>Tim Riset Recommender System</p>
                 </div>
             </div>
-
         </div>
-
     </div>
-
 </div>
 </body>
 </html>

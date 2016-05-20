@@ -54,6 +54,18 @@ public class DBConnect {
         return rs;
     }
 
+    public int executeUpdate(){
+        try {
+            System.out.println("Creating statement...");
+            stmt = conn.createStatement();
+            return stmt.executeUpdate(this.sql);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public void closeConnection() {
         try {
             stmt.close();

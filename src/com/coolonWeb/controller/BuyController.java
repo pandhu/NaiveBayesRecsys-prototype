@@ -25,7 +25,7 @@ public class BuyController extends HttpServlet {
         System.out.println(idItem);
         System.out.println(request.getHeader("referer"));
         User user = (User) request.getSession().getAttribute("user");
-        Main.naiveBayesModel.buy(user.id, idItem);
+        Main.naiveBayesModel1.buy(user.id, idItem);
         Item item = Item.find(idItem);
         user.itemTransactions.add(item);
         if (user.itemTransactions.size() < 5    ) {

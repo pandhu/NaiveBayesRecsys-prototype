@@ -31,7 +31,7 @@ public class DashboardController extends HttpServlet {
 
     public static void showDashboard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) request.getSession().getAttribute("user");
-        ArrayList<Item> items = Main.naiveBayesModel.makeTopNRecommendation(user.id,10);
+        ArrayList<Item> items = Main.naiveBayesModel1.makeTopNRecommendation(user.id,10);
         ArrayList<Category> categories = Category.getCategoryLvl1();
         request.setAttribute("recommendedItems", items);
         request.setAttribute("categories", categories);

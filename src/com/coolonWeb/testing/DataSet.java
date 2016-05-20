@@ -18,7 +18,7 @@ public class DataSet {
     public ArrayList<String> items;
     public HashMap<String, Item> itemsData;
     public HashMap<String, ArrayList<String>> userInterests;
-
+    public ArrayList<String> listOfPossibleUser;
 
     public DataSet(){
         this.transactions = new ArrayList<>();
@@ -26,6 +26,7 @@ public class DataSet {
         this.items = new ArrayList<>();
         this.userInterests = new HashMap<>();
         this.itemsData = new HashMap<>();
+        this.listOfPossibleUser = new ArrayList<>();
     }
 
     public void sortUserInterestsByNumberOfItem(){
@@ -114,6 +115,20 @@ public class DataSet {
         }
     }
 
+    public void filterUser(){
+        Iterator it = this.userInterests.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            if(((ArrayList<String>)pair.getValue()).size() == 5){
+                this.listOfPossibleUser.add((String) pair.getKey());
+            }
+        }
+    }
+
+    public String getRandomUser(){
+        int index = (int) (Math.random()* (this.listOfPossibleUser.size()+1));
+        return this.listOfPossibleUser.get(index);
+    }
     public void printStatDataSet(){
         System.out.println("==========================PRINT DATA STAT==============================");
         System.out.println("number of users: " + this.users.size());

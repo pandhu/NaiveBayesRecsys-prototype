@@ -57,7 +57,7 @@
             <input type="button" class="btn btn-default btn-lg" value="Kembali" onClick="history.back(1)">
         </div>
         <div class="col-md-6">
-            <jsp:include page="/views/trasactionHistory.jsp"></jsp:include>
+            <jsp:include page="/views/transactionHistory.jsp"></jsp:include>
         </div>
     </div>
     <br/><br/>

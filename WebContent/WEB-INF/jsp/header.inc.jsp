@@ -21,9 +21,6 @@
     </div>
     <ul class="nav navbar-nav navbar-right">
       <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-          <%=((User)request.getSession().getAttribute("user")).id%><span class="caret"></span>
-        </a>
         <ul class="dropdown-menu">
           <li><a href="<%=Config.SITE_URL+"/user/transactions"%>">Purchase History</a></li>
           <li><a href="<%=Config.SITE_URL+"/auth/logout"%>">Logout</a></li>
