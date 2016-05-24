@@ -90,7 +90,7 @@ public class MemoryBasedModel {
                 }
 
                 ii++;
-            } while (hasil.size() < 10 && ii <4);
+            } while (hasil.size() < 5 && ii <4);
 
         }
         return hasil;
@@ -121,7 +121,7 @@ public class MemoryBasedModel {
 
     public ArrayList<Item> getRecommendationByUser(String idUser){
         DBConnect db = new DBConnect();
-        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+", ( SELECT MEM_NO_ENC,COUNT(MEM_NO_ENC) jumlah FROM "+purchaseTable+" WHERE PRODUCT_NUMBER_ENC in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) AND MEM_NO_ENC <> "+idUser+" GROUP BY MEM_NO_ENC ORDER BY JUMLAH DESC LIMIT 10 ) t WHERE t.MEM_NO_ENC="+purchaseTable+".MEM_NO_ENC AND "+purchaseTable+".PRODUCT_NUMBER_ENC not in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT 10");
+        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+", ( SELECT MEM_NO_ENC,COUNT(MEM_NO_ENC) jumlah FROM "+purchaseTable+" WHERE PRODUCT_NUMBER_ENC in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) AND MEM_NO_ENC <> "+idUser+" GROUP BY MEM_NO_ENC ORDER BY JUMLAH DESC LIMIT 10 ) t WHERE t.MEM_NO_ENC="+purchaseTable+".MEM_NO_ENC AND "+purchaseTable+".PRODUCT_NUMBER_ENC not in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT 5");
         ResultSet rs = db.execute();
         ArrayList<Item> result = new ArrayList<>();
         try {
@@ -141,7 +141,7 @@ public class MemoryBasedModel {
             return result;
 
         //recommendation by domographic
-        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+" WHERE MEM_NO_ENC in ( SELECT MEM_NO_ENC FROM MEMBER, ( SELECT AGE_GROUP, GENDER FROM MEMBER WHERE MEM_NO_ENC = "+idUser+" ) q WHERE q.AGE_GROUP = member.AGE_GROUP and q.GENDER = member.GENDER ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT 10");
+        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+" WHERE MEM_NO_ENC in ( SELECT MEM_NO_ENC FROM MEMBER, ( SELECT AGE_GROUP, GENDER FROM MEMBER WHERE MEM_NO_ENC = "+idUser+" ) q WHERE q.AGE_GROUP = member.AGE_GROUP and q.GENDER = member.GENDER ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT 5");
         rs = db.execute();
         try {
             while(rs.next()){

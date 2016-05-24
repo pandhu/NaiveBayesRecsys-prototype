@@ -70,7 +70,7 @@ public class Main extends HttpServlet{
             dataset3.removeNonPurchasedFromUserInterests();
             dataset3.removeUnsoldItems();
             dataset3.printStatDataSet();
-            dataset3.filterUser();
+            dataset3.filterUser(6);
 
             //offlineTesting();
             this.dataset2 = new DataSet();
@@ -82,7 +82,7 @@ public class Main extends HttpServlet{
             dataset2.printStatDataSet();
             dataset2.removeNonPurchasedFromUserInterests();
             dataset2.removeUnsoldItems();
-            dataset2.filterUser();
+            dataset2.filterUser(5);
 
             this.dataset1 = new DataSet();
             dataset1.users = readMember(memberReader1);
@@ -93,7 +93,7 @@ public class Main extends HttpServlet{
             dataset1.printStatDataSet();
             dataset1.removeNonPurchasedFromUserInterests();
             dataset1.removeUnsoldItems();
-            dataset1.filterUser();
+            dataset1.filterUser(3);
 
             naiveBayesModel1 = new NaiveBayesModel();
             naiveBayesModel1.setDataset(dataset1);

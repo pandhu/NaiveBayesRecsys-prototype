@@ -115,11 +115,11 @@ public class DataSet {
         }
     }
 
-    public void filterUser(){
+    public void filterUser(int numberOfTransaction){
         Iterator it = this.userInterests.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
-            if(((ArrayList<String>)pair.getValue()).size() == 5){
+            if(((ArrayList<String>)pair.getValue()).size() == numberOfTransaction){
                 this.listOfPossibleUser.add((String) pair.getKey());
             }
         }

@@ -13,6 +13,7 @@ public class Item{
     public String category2;
     public String category3;
     public boolean upvoted;
+    public byte method;
 
     public static ArrayList<Item> getItemByCategory(String lvl1, String lvl2, String lvl3){
         ArrayList<Item> items = new ArrayList<>();

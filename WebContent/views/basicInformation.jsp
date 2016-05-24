@@ -29,7 +29,12 @@
         </div>
         <div class="form-group">
             <label>Gender</label>
-            <input type="text" name="gender" class="form-control" >
+            <div class="radio">
+                <label><input type="radio" value="M" name="gender">Laki-laki</label>
+            </div>
+            <div class="radio">
+                <label><input type="radio" value="F" name="gender">Perempuan</label>
+            </div>
         </div>
         <div class="form-group">
             <label>Hp</label>
