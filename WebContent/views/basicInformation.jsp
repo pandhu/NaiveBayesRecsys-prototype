@@ -13,24 +13,35 @@
 <jsp:include page="/WEB-INF/jsp/header.inc.jsp"></jsp:include>
 
 <h1>Informasi Umum</h1>
-<?php $baris = $hasilnya[0]?>
 <ol class="breadcrumb">
     <li>Informasi Umum</li>
 </ol>
 <div class="inner cover">
     <form action="<%=Config.SITE_URL%>/survey/basicInformation" method="POST">
+        <%
+            String error = (String) request.getAttribute("error");
+            if(error != null){
+        %>
+        <div class="alert alert-danger" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Error:</span>
+            <%= error%>
+        </div>
+        <%
+            }
+        %>
         <div class="form-group">
             <label>Email</label>
-            <input type="text" name="email" class="form-control" >
+            <input type="text" name="email" class="form-control" required>
         </div>
         <div class="form-group">
             <label>Usia</label>
-            <input type="number" name="age" class="form-control" >
+            <input type="number" name="age" class="form-control" required>
         </div>
         <div class="form-group">
             <label>Gender</label>
             <div class="radio">
-                <label><input type="radio" value="M" name="gender">Laki-laki</label>
+                <label><input type="radio" value="M" name="gender" required>Laki-laki</label>
             </div>
             <div class="radio">
                 <label><input type="radio" value="F" name="gender">Perempuan</label>
@@ -38,7 +49,7 @@
         </div>
         <div class="form-group">
             <label>Hp</label>
-            <input type="text" name="phone" class="form-control" >
+            <input type="text" name="phone" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-default">Lanjut</button>
     </form>

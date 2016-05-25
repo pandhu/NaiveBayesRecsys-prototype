@@ -10,7 +10,7 @@ public class Config {
 	public final static String META_DESCRIPTION = "Welcome on my site";
 	public final static String META_KEYWORDS = "ph, software, java, jsp";
 	    
-	public final static String SITE_URL = "";
+	public final static String SITE_URL = "/recsys/";
 	public final static String TPL_URL = "/tpl/base/";
 	public final static String STATIC_URL = "/static/";
 	    

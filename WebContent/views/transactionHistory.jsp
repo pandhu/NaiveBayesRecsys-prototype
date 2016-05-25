@@ -24,8 +24,8 @@
     <% }
     }%>
 </table>
-    <p>Refresh untuk mengganti riwayat transaksi</p>
-    <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/testTime/methodA/part1">Lanjut</a>
+    <p>Anda merupakan seorang yang telah membeli barang diatas. Jika anda tidak mengenali daftar barang diatas, anda dapat mengganti riwayat transaksi.</p>
+    <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/testTime/part1">Lanjut</a>
     <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/transactionHistory">Ganti Riwayat Transaksi</a>
 
 </div>

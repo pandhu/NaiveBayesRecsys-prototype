@@ -38,6 +38,9 @@ public class SurveyController extends HttpServlet{
             case "/transactionHistory":
                 showHistoryTransaction(request,response);
                 return;
+            case "/testTime/part1":
+                testTimePart1(request,response);
+                return;
             case "/testTime/methodA/part1":
                 testTimeMethodAPart1(request,response);
                 return;
@@ -47,6 +50,9 @@ public class SurveyController extends HttpServlet{
             case "/testRelevance/part1":
                 testRelevancePart1(request,response);
                 return;
+            case "/testTime/part2":
+                testTimePart2(request,response);
+                return;
             case "/testTime/methodA/part2":
                 testTimeMethodAPart2(request,response);
                 return;
@@ -55,6 +61,9 @@ public class SurveyController extends HttpServlet{
                 return;
             case "/testRelevance/part2":
                 testRelevancePart2(request,response);
+                return;
+            case "/testTime/part3":
+                testTimePart3(request,response);
                 return;
             case "/testTime/methodA/part3":
                 testTimeMethodAPart3(request,response);
@@ -76,6 +85,9 @@ public class SurveyController extends HttpServlet{
                 return;
             case "/submit":
                 submit(request,response);
+                return;
+            case "/thanks":
+                thanks(request,response);
                 return;
             default:
                 return;
@@ -111,7 +123,10 @@ public class SurveyController extends HttpServlet{
         String phone = request.getParameter("phone");
         String age = request.getParameter("age");
         String gender = request.getParameter("gender");
-
+        if(email.equals("") || phone.equals("") || age.equals("") || gender == null){
+            request.setAttribute("error", "Error, form tidak diisi dengan benar");
+            response.sendRedirect(Config.SITE_URL+"/survey/basicInformation");
+        }
         User user = new User();
         user.ageGroup = age;
         user.gender = gender;
@@ -157,7 +172,7 @@ public class SurveyController extends HttpServlet{
             e.printStackTrace();
         }
         System.out.println(possibleUsers.size());
-        int index = (int) (Math.random()* (possibleUsers.size()+1));
+        int index = ((int) (Math.random()* (possibleUsers.size()+1)))-1;
         System.out.println(index);
         for(String str:possibleUsers){
             System.out.println(str);
@@ -260,6 +275,7 @@ public class SurveyController extends HttpServlet{
 
         request.setAttribute("recommendedItems", recommendedItems);
         request.setAttribute("historyItems", historyItems);
+        request.setAttribute("stage", 1);
         request.setAttribute("nextUrl", "/survey/stage2");
 
         request.getRequestDispatcher("/views/showRelevanceTest.jsp").forward(request,response);
@@ -347,6 +363,8 @@ public class SurveyController extends HttpServlet{
 
         request.setAttribute("recommendedItems", recommendedItems);
         request.setAttribute("historyItems", historyItems);
+        request.setAttribute("stage", 2);
+
         request.setAttribute("nextUrl", "/survey/stage3");
 
         request.getRequestDispatcher("/views/showRelevanceTest.jsp").forward(request,response);
@@ -433,10 +451,25 @@ public class SurveyController extends HttpServlet{
 
         request.setAttribute("recommendedItems", recommendedItems);
         request.setAttribute("historyItems", historyItems);
+        request.setAttribute("stage", 3);
+
         request.setAttribute("nextUrl", "/survey/final");
 
         request.getRequestDispatcher("/views/showRelevanceTest.jsp").forward(request,response);
 
+    }
+
+    public void testTimePart1(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("nextUrl", "survey/testTime/methodA/part1");
+        request.getRequestDispatcher("/views/timeTestWarning.jsp").forward(request, response);
+    }
+    public void testTimePart2(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("nextUrl", "survey/testTime/methodA/part2");
+        request.getRequestDispatcher("/views/timeTestWarning.jsp").forward(request, response);
+    }
+    public void testTimePart3(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("nextUrl", "survey/testTime/methodA/part3");
+        request.getRequestDispatcher("/views/timeTestWarning.jsp").forward(request, response);
     }
 
     public void stageFinal(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -445,20 +478,27 @@ public class SurveyController extends HttpServlet{
 
         request.getRequestDispatcher("/views/final.jsp").forward(request, response);
     }
-    public void submitRelevanceTest(HttpServletRequest request, HttpServletResponse response){
+    public void submitRelevanceTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String[] selectedItems = request.getParameterValues("selectedItem");
+        int stage = Integer.parseInt(request.getParameter("stage"));
         int selectedMethodA = 0;
         int selectedMethodB = 0;
-        for(String selectedItem : selectedItems){
-            if(selectedItem.equals("1"))
-                selectedMethodA++;
-            else
-                selectedMethodB++;
+        if(selectedItems != null){
+            for(String selectedItem : selectedItems){
+                if(selectedItem.equals("1"))
+                    selectedMethodA++;
+                else
+                    selectedMethodB++;
+            }
         }
-        System.out.println(selectedMethodA);
-        System.out.println(selectedMethodB);
+        request.getSession().setAttribute("testRelevancePart"+stage+"A", selectedMethodA);
+        request.getSession().setAttribute("testRelevancePart"+stage+"B", selectedMethodB);
+        if(stage < 3)
+            response.sendRedirect(Config.SITE_URL+"/survey/stage"+(stage+1));
+        else
+            response.sendRedirect(Config.SITE_URL+"/survey/final");
     }
-    public void submit(HttpServletRequest request, HttpServletResponse response){
+    public void submit(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         String testTimeMethodAPart1 = (String) session.getAttribute("testTimeMethodAPart1");
@@ -486,5 +526,11 @@ public class SurveyController extends HttpServlet{
         db.setSql(sql);
         db.executeUpdate();
         db.closeConnection();
+
+        response.sendRedirect(Config.SITE_URL+"/survey/thanks");
+    }
+    
+    public void thanks(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.getRequestDispatcher("/views/thanks.jsp").forward(request,response);
     }
 }

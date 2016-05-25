@@ -28,6 +28,10 @@
             <% }
             }%>
         </table>
+        <p>Pada tahap ini anda diminta untuk memilih barang yang menurut anda menarik dari daftar rekomendasi barang di
+            sebelah kanan berdasarkan riwayat transaksi. Diasumsikan Anda merupakan orang yang sangat kaya raya sehingga
+            harga bukanlah aspek yang dipertimbangkan dalam membeli barang
+        </p>
     </div>
     <div class="col-md-6">
         <h3>Rekomendasi</h3>
@@ -43,7 +47,7 @@
             </tr>
             <% }
             }%>
-            <input type="text" value="<%=request.getAttribute("testStage")%>" name="testStage" hidden>
+            <input type="text" value="<%=request.getAttribute("stage")%>" name="stage" hidden>
 
         </table>
         <input class="btn btn-default" type="submit" value="Submit">
