@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.crypto.Data;
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -34,6 +35,12 @@ public class SurveyController extends HttpServlet{
                 return;
             case "/basicInformation":
                 basicInformation(request,response);
+                return;
+            case "/chooseItem":
+                chooseInitialItem(request,response);
+                return;
+            case "/scenarioExplaination":
+                scenarioExplaination(request,response);
                 return;
             case "/transactionHistory":
                 showHistoryTransaction(request,response);
@@ -113,7 +120,10 @@ public class SurveyController extends HttpServlet{
 
         request.getRequestDispatcher("/views/welcome.jsp").forward(request, response);
     }
+    public void scenarioExplaination(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        request.getRequestDispatcher("/views/scenarioExplaination.jsp").forward(request, response);
+    }
     public void basicInformation(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("/views/basicInformation.jsp").forward(request, response);
     }
@@ -121,23 +131,150 @@ public class SurveyController extends HttpServlet{
     public void submitBasicInformation(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
-        String age = request.getParameter("age");
         String gender = request.getParameter("gender");
-        if(email.equals("") || phone.equals("") || age.equals("") || gender == null){
+        String isEver = request.getParameter("isEver");
+        if(request.getParameter("age").equals("") || gender == null){
             request.setAttribute("error", "Error, form tidak diisi dengan benar");
             response.sendRedirect(Config.SITE_URL+"/survey/basicInformation");
         }
+        int age = Integer.parseInt(request.getParameter("age"));
         User user = new User();
-        user.ageGroup = age;
         user.gender = gender;
         user.email = email;
         user.phone = phone;
-
+        user.isEver = isEver;
+        user.id = (""+System.currentTimeMillis()).substring(0,9);
+        String ageGroup;
+        if(age < 18)
+            ageGroup = "<18";
+        else if(age <= 24)
+            ageGroup = "18-24";
+        else if (age <=34)
+            ageGroup = "25-34";
+        else if(age <= 35)
+            ageGroup = "35-44";
+        else
+            ageGroup = ">44";
+        user.ageGroup = ageGroup;
+        registerNewUser(user);
         HttpSession session = request.getSession();
         session.setAttribute("user", user);
-        response.sendRedirect(Config.SITE_URL+"/survey/transactionHistory");
+        response.sendRedirect(Config.SITE_URL+"/survey/scenarioExplaination");
+    }
+    public void chooseInitialItem(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String q = "";
+        q = request.getParameter("q");
+        String query = "SELECT * FROM purchase_stage_1 WHERE MEM_NO_ENC = "+user.id+" group by PRODUCT_NUMBER_ENC";
+        DBConnect db = new DBConnect();
+        db.setSql(query);
+        ArrayList<Item> items = new ArrayList<>();
+        ResultSet rs = db.execute();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                Item item = new Item();
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+                item.category1 = rs.getString("LV1_CATEGORY");
+                item.category2 = rs.getString("LV2_CATEGORY");
+                item.category3 = rs.getString("LV3_CATEGORY");
+                items.add(item);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+        ArrayList<Item> resultAbsoluteSearch = searchAbsolute(q);
+        ArrayList<Item> resultSearch = searchAbsolute(q);
+        ArrayList<Item> result = new ArrayList<>();
+        for(Item item : resultAbsoluteSearch){
+            if(resultSearch.contains(item)){
+                resultSearch.remove(resultSearch.indexOf(item));
+            }
+            result.add(item);
+        }
+        for(Item item: resultSearch){
+            result.add(item);
+        }
+        request.setAttribute("historyItems", items);
+        request.setAttribute("resultItems", result);
+        request.getRequestDispatcher("/views/browseItem.jsp").forward(request, response);
     }
 
+    public ArrayList<Item> searchAbsolute(String query){
+        String queryBuilder = "SELECT * FROM product WHERE PRODUCT_NAME LIKE '%"+query+"%' LIMIT 20";
+        DBConnect db = new DBConnect();
+        db.setSql(queryBuilder);
+        ResultSet rs = db.execute();
+        ArrayList<Item> items = new ArrayList<>();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                Item item = new Item();
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+                item.category1 = rs.getString("LV1_CATEGORY");
+                item.category2 = rs.getString("LV2_CATEGORY");
+                item.category3 = rs.getString("LV3_CATEGORY");
+                items.add(item);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+        return items;
+    }
+    public ArrayList<Item> search(String query){
+        if(query == null){
+            return new ArrayList<Item>();
+        }
+        String[] words = query.split(" ");
+        String queryBuilder = "WHERE ";
+        for(String word : words){
+            queryBuilder += "PRODUCT_NAME LIKE '%"+word+"%' OR ";
+        }
+        queryBuilder = queryBuilder.substring(0, queryBuilder.length()-3);
+        queryBuilder += " LIMIT 100";
+        DBConnect db = new DBConnect();
+        db.setSql("SELECT * FROM product "+queryBuilder);
+        ArrayList<Item> items = new ArrayList<>();
+        ResultSet rs = db.execute();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                Item item = new Item();
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+                item.category1 = rs.getString("LV1_CATEGORY");
+                item.category2 = rs.getString("LV2_CATEGORY");
+                item.category3 = rs.getString("LV3_CATEGORY");
+                items.add(item);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+        return items;
+    }
+    public void buyItem(String idUser, String idItem){
+
+    }
+
+
+    public void registerNewUser(User newUser){
+        DBConnect db = new DBConnect();
+        String query = "INSERT INTO member (MEM_NO_ENC, AGE_GROUP, GENDER) values ("+ newUser.id+",'"+ newUser.ageGroup+"','"+ newUser.gender+"')";
+        db.setSql(query);
+        db.executeUpdate();
+        db.closeConnection();
+        Main.naiveBayesModel1.getDataset().users.add(newUser.id);
+        Main.naiveBayesModel2.getDataset().users.add(newUser.id);
+        Main.naiveBayesModel3.getDataset().users.add(newUser.id);
+    }
     public void showHistoryTransaction(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         DBConnect db = new DBConnect();
         HttpSession session = request.getSession();
@@ -173,10 +310,7 @@ public class SurveyController extends HttpServlet{
         }
         System.out.println(possibleUsers.size());
         int index = ((int) (Math.random()* (possibleUsers.size()+1)))-1;
-        System.out.println(index);
-        for(String str:possibleUsers){
-            System.out.println(str);
-        }
+
         String idUser = possibleUsers.get(index);
         user.id = idUser;
         session.setAttribute("user", user);
@@ -214,6 +348,8 @@ public class SurveyController extends HttpServlet{
         long runtimeMillis = endMilis - startMillis;
         request.getSession().setAttribute("testTimeMethodAPart1Time", runtimeMillis);
         request.setAttribute("items", items);
+        request.setAttribute("method", "Metode A");
+
         request.setAttribute("nextUrl", "/survey/testTime/methodB/part1");
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
@@ -229,6 +365,7 @@ public class SurveyController extends HttpServlet{
         long runtimeMillis = endMilis - startMillis;
         request.getSession().setAttribute("testTimeMethodBPart1Time", runtimeMillis);
         request.setAttribute("items", items);
+        request.setAttribute("method", "Metode B");
         request.setAttribute("nextUrl", "/survey/testRelevance/part1");
         System.out.println(items.size());
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
@@ -299,6 +436,7 @@ public class SurveyController extends HttpServlet{
         long runtimeMillis = endMilis - startMillis;
         request.getSession().setAttribute("testTimeMethodAPart2Time", runtimeMillis);
         request.setAttribute("items", items);
+        request.setAttribute("method", "Metode A");
         request.setAttribute("nextUrl", "/survey/testTime/methodB/part2");
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
@@ -316,6 +454,7 @@ public class SurveyController extends HttpServlet{
         request.getSession().setAttribute("testTimeMethodBPart2Time", runtimeMillis);
 
         request.setAttribute("items", items);
+        request.setAttribute("method", "Metode B");
         request.setAttribute("nextUrl", "/survey/testRelevance/part2");
         System.out.println(items.size());
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
@@ -386,6 +525,7 @@ public class SurveyController extends HttpServlet{
         long runtimeMillis = endMilis - startMillis;
         request.getSession().setAttribute("testTimeMethodAPart3Time", runtimeMillis);
         request.setAttribute("items", items);
+        request.setAttribute("method", "Metode A");
         request.setAttribute("nextUrl", "/survey/testTime/methodB/part3");
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
@@ -403,6 +543,7 @@ public class SurveyController extends HttpServlet{
         request.getSession().setAttribute("testTimeMethodBPart3Time", runtimeMillis);
 
         request.setAttribute("items", items);
+        request.setAttribute("method", "Metode B");
         request.setAttribute("nextUrl", "/survey/testRelevance/part3");
         request.setAttribute("testStage", "1");
         System.out.println(items.size());
@@ -444,10 +585,10 @@ public class SurveyController extends HttpServlet{
                 historyItems.add(item);
             }
             rs.close();
-            db.closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        db.closeConnection();
 
         request.setAttribute("recommendedItems", recommendedItems);
         request.setAttribute("historyItems", historyItems);
@@ -520,8 +661,8 @@ public class SurveyController extends HttpServlet{
         int testRelevancePart3A = (int) session.getAttribute("testRelevancePart3A");
         int testRelevancePart3B = (int) session.getAttribute("testRelevancePart3B");
         DBConnect db = new DBConnect();
-        String sql = "INSERT INTO survey (email,hp,age,gender,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b)";
-        sql = sql + "values ('"+user.email+"','"+user.phone+"',"+user.ageGroup+",'"+user.gender+"',"+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+")";
+        String sql = "INSERT INTO survey (email,hp,age,gender,is_ever,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b)";
+        sql = sql + "values ('"+user.email+"','"+user.phone+"',"+user.ageGroup+",'"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+")";
         System.out.println(sql);
         db.setSql(sql);
         db.executeUpdate();

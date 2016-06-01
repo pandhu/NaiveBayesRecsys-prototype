@@ -14,7 +14,7 @@
     <link rel="stylesheet" type="text/css" href="<%= Config.SITE_URL %>/assets/base/css/cover.css"/>
 </head>
 <body>
-<div class="site-wrapper">
+<div class="site-wrapper col-md-12">
 
     <div class="site-wrapper-inner">
 
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <div class="inner cover">
+            <div class="inner cover ">
                 <h1 class="cover-heading">Selamat Datang</h1>
                 <p>
                     Kami dari Tim Riset Sistem Rekomendasi Fasilkom UI sedang melakukan riset terkait pengembangan sistem

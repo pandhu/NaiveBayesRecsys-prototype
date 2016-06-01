@@ -16,42 +16,63 @@
 <ol class="breadcrumb">
     <li>Informasi Umum</li>
 </ol>
+
 <div class="inner cover">
-    <form action="<%=Config.SITE_URL%>/survey/basicInformation" method="POST">
-        <%
-            String error = (String) request.getAttribute("error");
-            if(error != null){
-        %>
-        <div class="alert alert-danger" role="alert">
-            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-            <span class="sr-only">Error:</span>
-            <%= error%>
-        </div>
-        <%
-            }
-        %>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="text" name="email" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label>Usia</label>
-            <input type="number" name="age" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label>Gender</label>
-            <div class="radio">
-                <label><input type="radio" value="M" name="gender" required>Laki-laki</label>
+    <div class="col-md-12">
+        <form action="<%=Config.SITE_URL%>/survey/basicInformation" method="POST">
+            <div class="alert alert-success" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                Informasi dibawah digunakan untuk menentukan demografi responden.
             </div>
-            <div class="radio">
-                <label><input type="radio" value="F" name="gender">Perempuan</label>
+
+            <%
+                String error = (String) request.getAttribute("error");
+                if(error != null){
+            %>
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                <%= error%>
             </div>
-        </div>
-        <div class="form-group">
-            <label>Hp</label>
-            <input type="text" name="phone" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-default">Lanjut</button>
-    </form>
+            <%
+                }
+            %>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="text" name="email" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Hp</label>
+                <input type="text" name="phone" class="form-control">
+            </div>
+            <div class="alert alert-warning" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                Email dan no.HP hanya digunakan untuk menghubungi responden untuk membagikan hadiah. Boleh dikosongkan
+            </div>
+            <div class="form-group">
+                <label>Usia</label>
+                <input type="number" name="age" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="radio">
+                    <label><input type="radio" value="M" name="gender" required>Laki-laki</label>
+                </div>
+                <div class="radio">
+                    <label><input type="radio" value="F" name="gender">Perempuan</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Pernah berbelanja di e-commerce (Elevenia, Lazada, Bukalapak, Tokopedia, dll)</label>
+                <div class="radio">
+                    <label><input type="radio" value="1" name="isEver" required>Ya</label>
+                </div>
+                <div class="radio">
+                    <label><input type="radio" value="0" name="isEver">Tidak</label>
+                </div>            </div>
+            <button type="submit" class="btn btn-default">Lanjut</button>
+        </form>
+    </div>
 </div>
 <jsp:include page="/WEB-INF/jsp/footer.inc.jsp"></jsp:include>

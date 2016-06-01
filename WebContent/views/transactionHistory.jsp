@@ -24,7 +24,10 @@
     <% }
     }%>
 </table>
-    <p>Anda merupakan seorang yang telah membeli barang diatas. Jika anda tidak mengenali daftar barang diatas, anda dapat mengganti riwayat transaksi.</p>
+    <div class="alert alert-warning" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        Anda merupakan seorang yang telah membeli barang di atas. Jika anda tidak mengenali daftar barang di atas, Anda dapat mengganti riwayat transaksi.
+    </div>
     <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/testTime/part1">Lanjut</a>
     <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/transactionHistory">Ganti Riwayat Transaksi</a>
 

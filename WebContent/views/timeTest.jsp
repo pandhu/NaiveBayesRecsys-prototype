@@ -11,7 +11,9 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <jsp:include page="/WEB-INF/jsp/header.inc.jsp"></jsp:include>
-<h1>Barang Rekomendasi</h1>
+<h1>Uji Waktu Komputasi</h1>
+<h1><%= request.getAttribute("method")%></h1>
+
 <div class="col-md-6">
     <table class="table table-hover">
         <%

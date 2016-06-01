@@ -32,68 +32,42 @@ public class Main extends HttpServlet{
             ServletContext context = getServletContext();
 
             System.out.println("building model");
-            InputStream isProductReader1 = context.getResourceAsStream("/WEB-INF/data/product.csv");
-            InputStream isProductReader2 = context.getResourceAsStream("/WEB-INF/data/product.csv");
-            InputStream isProductReader3 = context.getResourceAsStream("/WEB-INF/data/product.csv");
-            InputStream isProductDataReader1 = context.getResourceAsStream("/WEB-INF/data/product.csv");
-            InputStream isProductDataReader2 = context.getResourceAsStream("/WEB-INF/data/product.csv");
-            InputStream isProductDataReader3 = context.getResourceAsStream("/WEB-INF/data/product.csv");
-            InputStream isTransactionReader1 = context.getResourceAsStream("/WEB-INF/data/purchase_1.csv");
-            InputStream isTransactionReader2 = context.getResourceAsStream("/WEB-INF/data/purchase_2.csv");
-            InputStream isTransactionReader3 = context.getResourceAsStream("/WEB-INF/data/purchase.csv");
 
-            InputStream isMemberReader1 = context.getResourceAsStream("/WEB-INF/data/member.csv");
-            InputStream isMemberReader2 = context.getResourceAsStream("/WEB-INF/data/member.csv");
-            InputStream isMemberReader3 = context.getResourceAsStream("/WEB-INF/data/member.csv");
-
-
-            BufferedReader productReader1 = new BufferedReader(new InputStreamReader(isProductReader1));
-            BufferedReader productReader2 = new BufferedReader(new InputStreamReader(isProductReader2));
-            BufferedReader productReader3 = new BufferedReader(new InputStreamReader(isProductReader3));
-            BufferedReader productDataReader1 = new BufferedReader(new InputStreamReader(isProductDataReader1));
-            BufferedReader productDataReader2 = new BufferedReader(new InputStreamReader(isProductDataReader2));
-            BufferedReader productDataReader3 = new BufferedReader(new InputStreamReader(isProductDataReader3));
-            BufferedReader transactionReader1 = new BufferedReader(new InputStreamReader(isTransactionReader1));
-            BufferedReader transactionReader2 = new BufferedReader(new InputStreamReader(isTransactionReader2));
-            BufferedReader transactionReader3 = new BufferedReader(new InputStreamReader(isTransactionReader3));
-            BufferedReader memberReader1 = new BufferedReader(new InputStreamReader(isMemberReader1));
-            BufferedReader memberReader2 = new BufferedReader(new InputStreamReader(isMemberReader2));
-            BufferedReader memberReader3 = new BufferedReader(new InputStreamReader(isMemberReader3));
 
             this.dataset3 = new DataSet();
-            dataset3.users = readMember(memberReader3);
-            dataset3.items = readProduct(productReader3);
-            dataset3.itemsData = readProductData(productDataReader3);
-            dataset3.transactions = readTransaction(transactionReader3);
+            dataset3.users = readMemberFromSQL();
+            dataset3.items = readProductFromSQL();
+            dataset3.itemsData = readProductDataFromSQL();
+            dataset3.transactions = readTransactionFromSQL("purchase");
             dataset3.assignUserInterests();
             //dataset.sortUserInterestsByNumberOfItem();
             dataset3.removeNonPurchasedFromUserInterests();
             dataset3.removeUnsoldItems();
-            dataset3.printStatDataSet();
             dataset3.filterUser(6);
+            dataset3.printStatDataSet();
 
             //offlineTesting();
             this.dataset2 = new DataSet();
-            dataset2.users = readMember(memberReader2);
-            dataset2.items = readProduct(productReader2);
-            dataset2.itemsData = readProductData(productDataReader2);
-            dataset2.transactions = readTransaction(transactionReader2);
+            dataset2.users = readMemberFromSQL();
+            dataset2.items = readProductFromSQL();
+            dataset2.itemsData = readProductDataFromSQL();
+            dataset2.transactions = readTransactionFromSQL("purchase_stage_2");
             dataset2.assignUserInterests();
-            dataset2.printStatDataSet();
             dataset2.removeNonPurchasedFromUserInterests();
             dataset2.removeUnsoldItems();
             dataset2.filterUser(5);
+            dataset2.printStatDataSet();
 
             this.dataset1 = new DataSet();
-            dataset1.users = readMember(memberReader1);
-            dataset1.items = readProduct(productReader1);
-            dataset1.itemsData = readProductData(productDataReader1);
-            dataset1.transactions = readTransaction(transactionReader1);
+            dataset1.users = readMemberFromSQL();
+            dataset1.items = readProductFromSQL();
+            dataset1.itemsData = readProductDataFromSQL();
+            dataset1.transactions = readTransactionFromSQL("purchase_stage_1");
             dataset1.assignUserInterests();
-            dataset1.printStatDataSet();
             dataset1.removeNonPurchasedFromUserInterests();
             dataset1.removeUnsoldItems();
             dataset1.filterUser(3);
+            dataset1.printStatDataSet();
 
             naiveBayesModel1 = new NaiveBayesModel();
             naiveBayesModel1.setDataset(dataset1);
@@ -137,6 +111,31 @@ public class Main extends HttpServlet{
         System.out.println("Read Product Data done");
         return itemsData;
     }
+
+    public static HashMap<String, Item> readProductDataFromSQL() throws IOException {
+        System.out.println("Read Product Data");
+        DBConnect db = new DBConnect();
+        String query = "SELECT * FROM product";
+        db.setSql(query);
+        HashMap<String, Item> itemsData =  new HashMap<>();
+        ResultSet rs = db.execute();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                Item item = new Item();
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+                itemsData.put(item.id, item);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+        System.out.println("Read Product Data done");
+        return itemsData;
+    }
+
     public static HashMap<String, Double> readConditionalProbs(BufferedReader conditionalProbReader) throws IOException{
         System.out.println("Read conditional probability");
         String line;
@@ -191,6 +190,28 @@ public class Main extends HttpServlet{
         return products;
     }
 
+    public static ArrayList<String> readProductFromSQL() throws IOException {
+        System.out.println("Read Product");
+        DBConnect db = new DBConnect();
+        String query = "SELECT * FROM product";
+        db.setSql(query);
+        ArrayList<String> products = new ArrayList<>();
+        ResultSet rs = db.execute();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                products.add(rs.getString("PRODUCT_NUMBER_ENC"));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+
+        System.out.println("Read Product done");
+        return products;
+    }
+
     public static ArrayList<String> readMember(BufferedReader memberReader) throws IOException {
         System.out.println("Read Member");
 
@@ -200,6 +221,27 @@ public class Main extends HttpServlet{
             String product = line.split(",")[0];
             members.add(product.substring(1,product.length()-1));
         }
+        System.out.println("Read Member done");
+        return members;
+    }
+
+    public static ArrayList<String> readMemberFromSQL() throws IOException {
+        System.out.println("Read Member");
+        DBConnect db = new DBConnect();
+        String query = "SELECT * FROM member";
+        db.setSql(query);
+        ArrayList<String> members = new ArrayList<>();
+        ResultSet rs = db.execute();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                members.add(rs.getString("MEM_NO_ENC"));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
         System.out.println("Read Member done");
         return members;
     }
@@ -217,6 +259,31 @@ public class Main extends HttpServlet{
             transaction.user = user.substring(1,user.length()-1);
             transactions.add(transaction);
         }
+        System.out.println("Read Transaction done");
+        return transactions;
+    }
+
+    public static ArrayList<Transaction> readTransactionFromSQL(String table) throws IOException {
+        System.out.println("Read Transaction");
+
+        DBConnect db = new DBConnect();
+        String query = "SELECT * FROM "+table;
+        db.setSql(query);
+        ArrayList<Transaction> transactions = new ArrayList<>();
+        ResultSet rs = db.execute();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                Transaction transaction = new Transaction();
+                transaction.item = rs.getString("PRODUCT_NUMBER_ENC");
+                transaction.user = rs.getString("MEM_NO_ENC");
+                transactions.add(transaction);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
         System.out.println("Read Transaction done");
         return transactions;
     }

@@ -137,7 +137,7 @@ public class NaiveBayesModel {
         Iterator it = sortedRecommendedItems.entrySet().iterator();
         for (int ii = 0; ii < n; ii++) {
             Map.Entry pair = (Map.Entry)it.next();
-            System.out.println(pair.getValue());
+            //System.out.println(pair.getValue());
             Item recommendedItem = this.dataset.itemsData.get((String)pair.getKey());
             nRecommendedItems.add(recommendedItem);
         }

@@ -36,6 +36,9 @@
                 <p>
                     Pada tahap ini akan diujikan waktu komputasi dan toleransi user terhadap waktu komputasi sistem dalam memberikan rekomendasi.
                 </p>
+                <p>
+                    Uji waktu komputasi akan dilakukan untuk Metode A dan Metode B.
+                </p>
                 <a class="btn btn-lg btn-default" href="<%=Config.SITE_URL+"/"+request.getAttribute("nextUrl")%>">Mulai</a>
             </div>
             <div class="mastfoot">

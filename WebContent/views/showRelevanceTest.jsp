@@ -28,10 +28,20 @@
             <% }
             }%>
         </table>
-        <p>Pada tahap ini anda diminta untuk memilih barang yang menurut anda menarik dari daftar rekomendasi barang di
-            sebelah kanan berdasarkan riwayat transaksi. Diasumsikan Anda merupakan orang yang sangat kaya raya sehingga
+        <div class="alert alert-warning" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            Pada tahap ini anda diminta untuk memilih barang yang menurut anda menarik dari daftar rekomendasi barang di
+            sebelah kanan berdasarkan riwayat transaksi.
+        </div>
+        <div class="alert alert-warning" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            Diasumsikan Anda merupakan orang yang sangat kaya raya sehingga
             harga bukanlah aspek yang dipertimbangkan dalam membeli barang
-        </p>
+        </div>
+        <div class="alert alert-warning" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            Boleh tidak memilih.
+        </div>
     </div>
     <div class="col-md-6">
         <h3>Rekomendasi</h3>

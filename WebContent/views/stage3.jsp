@@ -31,7 +31,7 @@
                 <p>
                     Pada tahap ini akan disimulasikan skenario yang sama seperti tahap sebelumnya namun dengan penambahan data dalam database untuk melihat scalability dan adaptibility sistem
                 </p>
-                <a class="btn btn-lg btn-default" href="<%=Config.SITE_URL%>/survey/testTime/methodA/part3">Lanjutkan</a>
+                <a class="btn btn-lg btn-default" href="<%=Config.SITE_URL%>/survey/testTime/part3">Lanjutkan</a>
             </div>
             <div class="mastfoot">
                 <div class="inner">

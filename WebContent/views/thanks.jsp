@@ -36,7 +36,6 @@
                 <p>
                     Kami segenap Tim Riset Rekommender System mengucapkan terima kasih atas partisipasinya dalam riset ini.
                 </p>
-                <a class="btn btn-lg btn-default" href="<%=Config.SITE_URL%>/survey/basicInformation">Lanjutkan</a>
             </div>
             <div class="mastfoot">
                 <div class="inner">
