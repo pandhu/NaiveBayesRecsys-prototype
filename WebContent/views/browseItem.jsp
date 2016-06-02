@@ -11,10 +11,18 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <jsp:include page="/WEB-INF/jsp/header.inc.jsp"></jsp:include>
-
-<h1>Relevansi Rekomendasi</h1>
+<%
+    String success = (String) request.getSession().getAttribute("success");
+    if(success != null){%>
+<div class="alert alert-success" role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+    Barang berhasil ditambahkan ke riwayat transaksi
+</div>
+<%  }
+    request.getSession().removeAttribute("success");
+%>
+<h1>Pilih Barang</h1>
 <row>
-    <form method="get" action="<%=Config.SITE_URL%>/survey/chooseItem">
         <div class="col-md-6">
             <h3>Riwayat Transaksi</h3>
             <table class="table table-hover">
@@ -23,10 +31,11 @@
                     if(historyItems != null){
                         for(Item item : historyItems ) {%>
                 <tr>
-                    <td><a href="<%=Config.SITE_URL+"item/detail?id="+item.id%>"><%=item.name%></a></td>
+                    <td><a><%=item.name%></a></td>
                 </tr>
-                <% }
-                }%>
+                <%      }
+                    }%>
+                <%=historyItems.size()%>/3
             </table>
             <div class="alert alert-warning" role="alert">
                 <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
@@ -61,17 +70,15 @@
                         for(Item item : resultItems ) {%>
                 <tr>
                     <td>
-                        <%=item.name%> <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/buy/<%=item.id%>">Beli</a>
+                        <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/buy?id=<%=item.id%>">Pilih</a> <%=item.name%>
                     </td>
                 </tr>
                 <% }
                 }%>
-                <input type="text" value="<%=request.getAttribute("stage")%>" name="stage" hidden>
             </table>
             <%}%>
             <input class="btn btn-default" type="submit" value="Submit">
         </div>
-    </form>
 </row>
 
 <jsp:include page="/WEB-INF/jsp/footer.inc.jsp"></jsp:include>

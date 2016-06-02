@@ -137,7 +137,7 @@ public class MemoryBasedModel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if(result.size() >0)
+        if(result.size() >= 5)
             return result;
 
         //recommendation by domographic
@@ -151,6 +151,8 @@ public class MemoryBasedModel {
                 item.name = rs.getString("PRODUCT_NAME");
 
                 result.add(item);
+                if(result.size() >= 5)
+                    return result;
             }
             rs.close();
         } catch (SQLException e) {

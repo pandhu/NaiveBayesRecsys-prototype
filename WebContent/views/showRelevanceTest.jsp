@@ -38,6 +38,7 @@
             Diasumsikan Anda merupakan orang yang sangat kaya raya sehingga
             harga bukanlah aspek yang dipertimbangkan dalam membeli barang
         </div>
+
         <div class="alert alert-warning" role="alert">
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
             Boleh tidak memilih.
@@ -52,7 +53,7 @@
                     for(Item item : recommendedItems ) {%>
             <tr>
                 <td>
-                    <label><input type="checkbox" value="<%=item.method%>" name="selectedItem"> <%=item.name%></label>
+                    <label><input type="checkbox" value="<%=item.method+"-"+item.id%>" name="selectedItem"> <%=item.name%></label>
                 </td>
             </tr>
             <% }

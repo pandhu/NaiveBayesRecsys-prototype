@@ -26,10 +26,9 @@
 </table>
     <div class="alert alert-warning" role="alert">
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-        Anda merupakan seorang yang telah membeli barang di atas. Jika anda tidak mengenali daftar barang di atas, Anda dapat mengganti riwayat transaksi.
+        Diatas merupakan barang-barang yang Anda pilih pada tahap sebelumnya.
     </div>
     <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/testTime/part1">Lanjut</a>
-    <a class="btn btn-default" href="<%=Config.SITE_URL%>/survey/transactionHistory">Ganti Riwayat Transaksi</a>
 
 </div>
 <jsp:include page="/WEB-INF/jsp/footer.inc.jsp"></jsp:include>

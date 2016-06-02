@@ -5,8 +5,9 @@ import com.coolonWeb.DBConnect;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Objects;
 
-public class Item{
+public class Item  implements Comparable{
     public String id;
     public String name;
     public String category1;
@@ -65,6 +66,15 @@ public class Item{
     @Override
     public String toString(){
         return this.id+"#"+this.name;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return this.id.compareTo(((Item)o).id);
+    }
+    @Override
+    public boolean equals(Object o){
+        return this.id.equals(((Item)o).id);
     }
 }
 

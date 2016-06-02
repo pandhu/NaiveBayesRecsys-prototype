@@ -10,7 +10,7 @@ public class DBConnect {
 
     static final String USER = "root";
     static final String PASS = "password0!";
-    private Connection conn;
+    public Connection conn;
     private String sql;
     private Statement stmt;
 
@@ -68,7 +68,8 @@ public class DBConnect {
 
     public void closeConnection() {
         try {
-            stmt.close();
+            if(stmt != null)
+                stmt.close();
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();

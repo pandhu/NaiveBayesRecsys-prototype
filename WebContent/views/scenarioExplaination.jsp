@@ -22,7 +22,8 @@
         Berikut ini merupakan informasi umum mengenai riset dan skenario yang dijalankan.
         <ol>
             <li>Riset ini menguji 2 buah metode Sistem Perekomendasi, Metode A dan Metode B.</li>
-            <li>Pada riset ini Anda seolah-olah menjadi seorang user e-commerce dengan riwayat transaksi yang sudah ditentukan</li>
+            <li>Pada riset ini Anda seolah-olah menjadi seorang user e-commerce.</li>
+            <li>Pada bagian awal anda diharuskan memilih 3 barang (bisa barang yang sudah anda miliki).</li>
             <li>Skenario pada uji coba terbagi menjadi 3 bagian.</li>
             <li>Setiap bagian dilakukan pengujian sebagai berikut:
                 <ul>

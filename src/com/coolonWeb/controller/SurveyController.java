@@ -4,6 +4,8 @@ import com.coolonWeb.Config;
 import com.coolonWeb.DBConnect;
 import com.coolonWeb.Main;
 import com.coolonWeb.model.Item;
+import com.coolonWeb.model.MemoryBasedModel;
+import com.coolonWeb.model.NaiveBayesModel;
 import com.coolonWeb.model.User;
 import com.coolonWeb.testing.DataSet;
 
@@ -15,11 +17,14 @@ import javax.servlet.http.HttpSession;
 import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.Array;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 
 /**
  * Created by root on 13/05/16.
@@ -36,6 +41,9 @@ public class SurveyController extends HttpServlet{
             case "/basicInformation":
                 basicInformation(request,response);
                 return;
+            case "/buy":
+                buyItem(request,response);
+                return;
             case "/chooseItem":
                 chooseInitialItem(request,response);
                 return;
@@ -43,7 +51,7 @@ public class SurveyController extends HttpServlet{
                 scenarioExplaination(request,response);
                 return;
             case "/transactionHistory":
-                showHistoryTransaction(request,response);
+                showHistoryTransactionUser(request,response);
                 return;
             case "/testTime/part1":
                 testTimePart1(request,response);
@@ -106,7 +114,11 @@ public class SurveyController extends HttpServlet{
         if(path == null) path = "";
         switch (path){
             case "/basicInformation":
-                submitBasicInformation(request, response);
+                try {
+                    submitBasicInformation(request, response);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 return;
             case "/submitRelevanceTest":
                 submitRelevanceTest(request, response);
@@ -128,7 +140,7 @@ public class SurveyController extends HttpServlet{
         request.getRequestDispatcher("/views/basicInformation.jsp").forward(request, response);
     }
 
-    public void submitBasicInformation(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void submitBasicInformation(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
         String gender = request.getParameter("gender");
@@ -143,7 +155,7 @@ public class SurveyController extends HttpServlet{
         user.email = email;
         user.phone = phone;
         user.isEver = isEver;
-        user.id = (""+System.currentTimeMillis()).substring(0,9);
+        user.id = (""+System.currentTimeMillis());
         String ageGroup;
         if(age < 18)
             ageGroup = "<18";
@@ -161,16 +173,39 @@ public class SurveyController extends HttpServlet{
         session.setAttribute("user", user);
         response.sendRedirect(Config.SITE_URL+"/survey/scenarioExplaination");
     }
+    public void registerNewUser(User newUser) throws SQLException {
+        DBConnect db = new DBConnect();
+        String query = "INSERT INTO member (MEM_NO_ENC, AGE_GROUP, GENDER) values (?,?,?)";
+        PreparedStatement preparedStatement = db.conn.prepareStatement(query);
+        preparedStatement.setString(1, newUser.id);
+        preparedStatement.setString(2, newUser.ageGroup);
+        preparedStatement.setString(3, newUser.gender);
+        preparedStatement.executeUpdate();
+        db.closeConnection();
+        Main.naiveBayesModel1.getDataset().users.add(newUser.id);
+        Main.naiveBayesModel1.getDataset().userInterests.put(newUser.id, new ArrayList<String>());
+        Main.naiveBayesModel2.getDataset().users.add(newUser.id);
+        Main.naiveBayesModel2.getDataset().userInterests.put(newUser.id, new ArrayList<String>());
+        Main.naiveBayesModel3.getDataset().users.add(newUser.id);
+        Main.naiveBayesModel3.getDataset().userInterests.put(newUser.id, new ArrayList<String>());
+
+    }
     public void chooseInitialItem(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) request.getSession().getAttribute("user");
+        if(user.itemTransactions.size()>=3){
+            response.sendRedirect(Config.SITE_URL+"/survey/transactionHistory");
+            return;
+        }
         String q = "";
         q = request.getParameter("q");
-        String query = "SELECT * FROM purchase_stage_1 WHERE MEM_NO_ENC = "+user.id+" group by PRODUCT_NUMBER_ENC";
+        String query = "SELECT * FROM purchase_stage_1 WHERE MEM_NO_ENC = ? group by PRODUCT_NUMBER_ENC";
         DBConnect db = new DBConnect();
-        db.setSql(query);
         ArrayList<Item> items = new ArrayList<>();
-        ResultSet rs = db.execute();
+        ResultSet rs = null;
         try {
+            PreparedStatement preparedStatement = db.conn.prepareStatement(query);
+            preparedStatement.setString(1, user.id);
+            rs = preparedStatement.executeQuery();
             while(rs.next()){
                 //Retrieve by column name
                 Item item = new Item();
@@ -182,12 +217,13 @@ public class SurveyController extends HttpServlet{
                 items.add(item);
             }
             rs.close();
+            preparedStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         db.closeConnection();
         ArrayList<Item> resultAbsoluteSearch = searchAbsolute(q);
-        ArrayList<Item> resultSearch = searchAbsolute(q);
+        ArrayList<Item> resultSearch = search(q);
         ArrayList<Item> result = new ArrayList<>();
         for(Item item : resultAbsoluteSearch){
             if(resultSearch.contains(item)){
@@ -204,12 +240,14 @@ public class SurveyController extends HttpServlet{
     }
 
     public ArrayList<Item> searchAbsolute(String query){
-        String queryBuilder = "SELECT * FROM product WHERE PRODUCT_NAME LIKE '%"+query+"%' LIMIT 20";
+        String queryBuilder = "SELECT purchase_stage_1.*, count(PRODUCT_NUMBER_ENC) as sum FROM purchase_stage_1 WHERE PRODUCT_NAME LIKE ? GROUP BY(PRODUCT_NUMBER_ENC) ORDER BY sum DESC LIMIT 20";
         DBConnect db = new DBConnect();
-        db.setSql(queryBuilder);
-        ResultSet rs = db.execute();
         ArrayList<Item> items = new ArrayList<>();
+        ResultSet rs;
         try {
+            PreparedStatement preparedStatement = db.conn.prepareStatement(queryBuilder);
+            preparedStatement.setString(1, "%"+query+"%");
+            rs = preparedStatement.executeQuery();
             while(rs.next()){
                 //Retrieve by column name
                 Item item = new Item();
@@ -221,28 +259,41 @@ public class SurveyController extends HttpServlet{
                 items.add(item);
             }
             rs.close();
+            preparedStatement.close();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         db.closeConnection();
         return items;
     }
+
     public ArrayList<Item> search(String query){
-        if(query == null){
-            return new ArrayList<Item>();
-        }
-        String[] words = query.split(" ");
         String queryBuilder = "WHERE ";
-        for(String word : words){
-            queryBuilder += "PRODUCT_NAME LIKE '%"+word+"%' OR ";
+        String[] words = new String[0];
+        if(query == null){
+            queryBuilder = " GROUP BY(PRODUCT_NUMBER_ENC) ORDER BY sum DESC LIMIT 20";
+        } else {
+            words = query.split(" ");
+            for (String word : words) {
+                queryBuilder += "PRODUCT_NAME LIKE ? OR ";
+            }
+            queryBuilder = queryBuilder.substring(0, queryBuilder.length() - 3);
+            queryBuilder += " GROUP BY(PRODUCT_NUMBER_ENC) ORDER BY sum DESC LIMIT 20";
         }
-        queryBuilder = queryBuilder.substring(0, queryBuilder.length()-3);
-        queryBuilder += " LIMIT 100";
+        System.out.println(queryBuilder);
         DBConnect db = new DBConnect();
-        db.setSql("SELECT * FROM product "+queryBuilder);
+        queryBuilder = "SELECT purchase_stage_1.*, count(PRODUCT_NUMBER_ENC) as sum FROM purchase_stage_1 "+queryBuilder;
+
         ArrayList<Item> items = new ArrayList<>();
-        ResultSet rs = db.execute();
         try {
+            PreparedStatement preparedStatement = db.conn.prepareStatement(queryBuilder);
+
+            for(int ii = 0; ii< words.length;ii++){
+                preparedStatement.setString(ii+1, words[ii]);
+            }
+            ResultSet rs = preparedStatement.executeQuery();
+
             while(rs.next()){
                 //Retrieve by column name
                 Item item = new Item();
@@ -254,26 +305,113 @@ public class SurveyController extends HttpServlet{
                 items.add(item);
             }
             rs.close();
+            preparedStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         db.closeConnection();
         return items;
     }
-    public void buyItem(String idUser, String idItem){
+    public void buyItem(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String idItem = request.getParameter("id");
+        buyItem(user, idItem);
+        request.getSession().setAttribute("success", "Barang berhasil ditambahkan ke riwayat transaksi");
+        response.sendRedirect(Config.SITE_URL+"/survey/chooseItem");
+    }
+    public void buyItem(User user, String idItem){
+        DBConnect db = new DBConnect();
+        String query = "SELECT * FROM product WHERE PRODUCT_NUMBER_ENC = ?";
+        ArrayList<Item> items = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = db.conn.prepareStatement(query);
+            preparedStatement.setString(1, idItem);
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()){
+                //Retrieve by column name
+                Item item = new Item();
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+                item.category1 = rs.getString("LV1_CATEGORY");
+                item.category2 = rs.getString("LV2_CATEGORY");
+                item.category3 = rs.getString("LV3_CATEGORY");
+                items.add(item);
+            }
+            rs.close();
+            preparedStatement.close();
+            db.closeConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if(items.size() == 0){
+            return;
+        }
+        user.itemTransactions.add(items.get(0));
+        buyMemoryBased(user.id, items.get(0), Main.memoryBasedModelStage1);
+        buyMemoryBased(user.id, items.get(0), Main.memoryBasedModelStage2);
+        buyMemoryBased(user.id, items.get(0), Main.memoryBasedModelStage3);
+        buyModelBased(user.id, items.get(0), Main.naiveBayesModel1);
+        buyModelBased(user.id, items.get(0), Main.naiveBayesModel2);
+        buyModelBased(user.id, items.get(0), Main.naiveBayesModel3);
 
     }
-
-
-    public void registerNewUser(User newUser){
+    public void buyMemoryBased(String idUser, Item item, MemoryBasedModel model){
+        String todayAsString = new SimpleDateFormat("ddMMyy").format(new Date());
         DBConnect db = new DBConnect();
-        String query = "INSERT INTO member (MEM_NO_ENC, AGE_GROUP, GENDER) values ("+ newUser.id+",'"+ newUser.ageGroup+"','"+ newUser.gender+"')";
-        db.setSql(query);
-        db.executeUpdate();
+        String query = "INSERT INTO "+model.purchaseTable+" (ORD_MONTH, MEM_NO_ENC, PRODUCT_NUMBER_ENC, PRODUCT_NAME, LV1_CATEGORY, LV2_CATEGORY, LV3_CATEGORY, OPTIONS)";
+        query += " values (?,?,?,?,?,?,?,?)";
+        try {
+            PreparedStatement preparedStatement = db.conn.prepareStatement(query);
+            preparedStatement.setString(1, todayAsString);
+            preparedStatement.setString(2, idUser);
+            preparedStatement.setString(3, item.id);
+            preparedStatement.setString(4, item.name);
+            preparedStatement.setString(5, item.category1);
+            preparedStatement.setString(6, item.category2);
+            preparedStatement.setString(7, item.category3);
+            preparedStatement.setString(8, "survey");
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println(query);
         db.closeConnection();
-        Main.naiveBayesModel1.getDataset().users.add(newUser.id);
-        Main.naiveBayesModel2.getDataset().users.add(newUser.id);
-        Main.naiveBayesModel3.getDataset().users.add(newUser.id);
+        return;
+    }
+    public void buyModelBased(String idUser, Item item, NaiveBayesModel model){
+        ArrayList<String> userInterest = model.getDataset().userInterests.get(idUser);
+        userInterest.add(item.id);
+        return;
+    }
+    public void showHistoryTransactionUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String query = "SELECT * FROM purchase WHERE MEM_NO_ENC = ?";
+        DBConnect db = new DBConnect();
+        ArrayList<Item> items = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = db.conn.prepareStatement(query);
+            preparedStatement.setString(1, user.id);
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()){
+                //Retrieve by column name
+                Item item = new Item();
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+                item.category1 = rs.getString("LV1_CATEGORY");
+                item.category2 = rs.getString("LV2_CATEGORY");
+                item.category3 = rs.getString("LV3_CATEGORY");
+                items.add(item);
+            }
+            rs.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+        request.setAttribute("items", items);
+        request.getRequestDispatcher("/views/transactionHistory.jsp").forward(request, response);
+
     }
     public void showHistoryTransaction(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         DBConnect db = new DBConnect();
@@ -379,12 +517,25 @@ public class SurveyController extends HttpServlet{
         ArrayList<Item> modelItems = Main.naiveBayesModel1.makeTopNRecommendation(user.id, 5);
         ArrayList<Item> memoryItems = Main.memoryBasedModelStage1.getRecommendationByUser(user.id);
         ArrayList<Item> recommendedItems = new ArrayList<>();
+        ArrayList<Item> both = new ArrayList<>();
+        for(Item item : modelItems){
+            if(memoryItems.contains(item)){
+
+                both.add(item);
+                modelItems.remove(item);
+                memoryItems.remove(item);
+            }
+        }
         for(Item item : memoryItems){
             item.method = 1;
             recommendedItems.add(item);
         }
         for(Item item: modelItems){
             item.method = 2;
+            recommendedItems.add(item);
+        }
+        for(Item item: both){
+            item.method= 3;
             recommendedItems.add(item);
         }
         Collections.shuffle(recommendedItems);
@@ -468,12 +619,24 @@ public class SurveyController extends HttpServlet{
         ArrayList<Item> modelItems = Main.naiveBayesModel2.makeTopNRecommendation(user.id, 5);
         ArrayList<Item> memoryItems = Main.memoryBasedModelStage2.getRecommendationByUser(user.id);
         ArrayList<Item> recommendedItems = new ArrayList<>();
+        ArrayList<Item> both = new ArrayList<>();
+        for(Item item : modelItems){
+            if(memoryItems.contains(item)){
+                both.add(item);
+                modelItems.remove(item);
+                memoryItems.remove(item);
+            }
+        }
         for(Item item : memoryItems){
             item.method = 1;
             recommendedItems.add(item);
         }
         for(Item item: modelItems){
             item.method = 2;
+            recommendedItems.add(item);
+        }
+        for(Item item: both){
+            item.method= 3;
             recommendedItems.add(item);
         }
         Collections.shuffle(recommendedItems);
@@ -557,6 +720,14 @@ public class SurveyController extends HttpServlet{
         User user = (User)request.getSession().getAttribute("user");
         ArrayList<Item> modelItems = Main.naiveBayesModel3.makeTopNRecommendation(user.id, 5);
         ArrayList<Item> memoryItems = Main.memoryBasedModelStage3.getRecommendationByUser(user.id);
+        ArrayList<Item> both = new ArrayList<>();
+        for(Item item : modelItems){
+            if(memoryItems.contains(item)){
+                both.add(item);
+                modelItems.remove(item);
+                memoryItems.remove(item);
+            }
+        }
         ArrayList<Item> recommendedItems = new ArrayList<>();
         for(Item item : memoryItems){
             item.method = 1;
@@ -566,6 +737,11 @@ public class SurveyController extends HttpServlet{
             item.method = 2;
             recommendedItems.add(item);
         }
+        for(Item item: both){
+            item.method= 3;
+            recommendedItems.add(item);
+        }
+
         Collections.shuffle(recommendedItems);
 
         ArrayList<Item> historyItems = new ArrayList<>();
@@ -625,11 +801,19 @@ public class SurveyController extends HttpServlet{
         int selectedMethodA = 0;
         int selectedMethodB = 0;
         if(selectedItems != null){
+            User user = (User) request.getSession().getAttribute("user");
             for(String selectedItem : selectedItems){
-                if(selectedItem.equals("1"))
+                String[] selectedItemSplit = selectedItem.split("-");
+
+                if(selectedItemSplit[0].equals("1"))
                     selectedMethodA++;
-                else
+                else if (selectedItemSplit[0].equals("2"))
                     selectedMethodB++;
+                else {
+                    selectedMethodA++;
+                    selectedMethodB++;
+                }
+                buyItem(user,selectedItemSplit[1]);
             }
         }
         request.getSession().setAttribute("testRelevancePart"+stage+"A", selectedMethodA);
