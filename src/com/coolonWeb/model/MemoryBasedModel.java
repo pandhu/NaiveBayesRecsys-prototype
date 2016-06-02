@@ -141,7 +141,7 @@ public class MemoryBasedModel {
             return result;
 
         //recommendation by domographic
-        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+" WHERE MEM_NO_ENC in ( SELECT MEM_NO_ENC FROM MEMBER, ( SELECT AGE_GROUP, GENDER FROM MEMBER WHERE MEM_NO_ENC = "+idUser+" ) q WHERE q.AGE_GROUP = member.AGE_GROUP and q.GENDER = member.GENDER ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT 5");
+        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+" WHERE MEM_NO_ENC in ( SELECT MEM_NO_ENC FROM member, ( SELECT AGE_GROUP, GENDER FROM member WHERE MEM_NO_ENC = "+idUser+" ) q WHERE q.AGE_GROUP = member.AGE_GROUP and q.GENDER = member.GENDER ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT 5");
         rs = db.execute();
         try {
             while(rs.next()){

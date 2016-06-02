@@ -104,6 +104,9 @@ public class SurveyController extends HttpServlet{
             case "/thanks":
                 thanks(request,response);
                 return;
+            case "/stressTest":
+                testRecommendation(request,response);
+                return;
             default:
                 return;
         }
@@ -281,7 +284,6 @@ public class SurveyController extends HttpServlet{
             queryBuilder = queryBuilder.substring(0, queryBuilder.length() - 3);
             queryBuilder += " GROUP BY(PRODUCT_NUMBER_ENC) ORDER BY sum DESC LIMIT 20";
         }
-        System.out.println(queryBuilder);
         DBConnect db = new DBConnect();
         queryBuilder = "SELECT purchase_stage_1.*, count(PRODUCT_NUMBER_ENC) as sum FROM purchase_stage_1 "+queryBuilder;
 
@@ -290,7 +292,7 @@ public class SurveyController extends HttpServlet{
             PreparedStatement preparedStatement = db.conn.prepareStatement(queryBuilder);
 
             for(int ii = 0; ii< words.length;ii++){
-                preparedStatement.setString(ii+1, words[ii]);
+                preparedStatement.setString(ii+1, "%"+words[ii]+"%");
             }
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -846,7 +848,7 @@ public class SurveyController extends HttpServlet{
         int testRelevancePart3B = (int) session.getAttribute("testRelevancePart3B");
         DBConnect db = new DBConnect();
         String sql = "INSERT INTO survey (email,hp,age,gender,is_ever,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b)";
-        sql = sql + "values ('"+user.email+"','"+user.phone+"',"+user.ageGroup+",'"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+")";
+        sql = sql + "values ('"+user.email+"','"+user.phone+"','"+user.ageGroup+"','"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+")";
         System.out.println(sql);
         db.setSql(sql);
         db.executeUpdate();
@@ -857,5 +859,15 @@ public class SurveyController extends HttpServlet{
     
     public void thanks(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("/views/thanks.jsp").forward(request,response);
+    }
+
+    public void testRecommendation(HttpServletRequest request, HttpServletResponse response){
+        Main.memoryBasedModelStage3.getRecommendationByUser("2246391147");
+        Main.memoryBasedModelStage2.getRecommendationByUser("2246391147");
+        Main.memoryBasedModelStage1.getRecommendationByUser("2246391147");
+        Main.naiveBayesModel3.makeTopNRecommendation("2246391147", 5);
+        Main.naiveBayesModel2.makeTopNRecommendation("2246391147", 5);
+        Main.naiveBayesModel1.makeTopNRecommendation("2246391147", 5);
+        System.out.println("stress test done");
     }
 }
