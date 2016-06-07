@@ -48,7 +48,7 @@
             </div>
             <div class="alert alert-warning" role="alert">
                 <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                Email dan no.HP hanya digunakan untuk menghubungi responden untuk membagikan hadiah. Boleh dikosongkan
+                Email dan no.HP boleh dikosongkan
             </div>
             <div class="form-group">
                 <label>Usia</label>
@@ -70,7 +70,8 @@
                 </div>
                 <div class="radio">
                     <label><input type="radio" value="0" name="isEver">Tidak</label>
-                </div>            </div>
+                </div>
+            </div>
             <button type="submit" class="btn btn-default">Lanjut</button>
         </form>
     </div>

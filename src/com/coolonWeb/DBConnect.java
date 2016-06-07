@@ -17,7 +17,6 @@ public class DBConnect {
     public DBConnect(){
         try {
             Class.forName(JDBC_DRIVER);
-            System.out.println("Connecting to database...");
             this.conn = DriverManager.getConnection(DB_URL, USER, PASS);
         } catch (Exception e){
 
@@ -28,7 +27,6 @@ public class DBConnect {
         this.sql = sql;
         try {
             Class.forName(JDBC_DRIVER);
-            System.out.println("Connecting to database...");
             this.conn = DriverManager.getConnection(DB_URL, USER, PASS);
         } catch (Exception e){
 
@@ -44,7 +42,6 @@ public class DBConnect {
     public ResultSet execute(){
         ResultSet rs = null;
         try {
-            System.out.println("Creating statement...");
             stmt = conn.createStatement();
             rs = stmt.executeQuery(this.sql);
 
@@ -56,7 +53,6 @@ public class DBConnect {
 
     public int executeUpdate(){
         try {
-            System.out.println("Creating statement...");
             stmt = conn.createStatement();
             return stmt.executeUpdate(this.sql);
 

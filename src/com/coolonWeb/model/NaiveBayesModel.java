@@ -100,6 +100,9 @@ public class NaiveBayesModel {
     public ArrayList<Item> makeTopNRecommendation(String user, int n){
         HashMap<String, Double> recommendedItems = new HashMap<>();
         int cn = CN;
+        if(this.dataset.userInterests.get(user) == null){
+            return new ArrayList<Item>();
+        }
         if(this.dataset.userInterests.get(user).size() < cn);
         cn = this.dataset.userInterests.get(user).size();
 

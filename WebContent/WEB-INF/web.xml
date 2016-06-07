@@ -78,6 +78,17 @@
     <load-on-startup>1</load-on-startup>
   </servlet>
 
+  <servlet>
+    <servlet-name>TestingController</servlet-name>
+    <servlet-class>com.coolonWeb.controller.TestingController</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>TestingController</servlet-name>
+    <url-pattern>/testing/*</url-pattern>
+  </servlet-mapping>
+
   <servlet-mapping>
     <servlet-name>RecommendController</servlet-name>
     <url-pattern>/recommendation/*</url-pattern>

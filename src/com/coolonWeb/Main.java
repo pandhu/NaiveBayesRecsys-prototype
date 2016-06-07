@@ -1,7 +1,10 @@
 package com.coolonWeb;
+import com.coolonWeb.controller.TestingController;
 import com.coolonWeb.model.*;
 import com.coolonWeb.testing.DataSet;
 import com.coolonWeb.testing.Testing;
+import com.coolonWeb.testing.TestingMemoryBased;
+import com.coolonWeb.testing.TestingModelBased;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -27,76 +30,110 @@ public class Main extends HttpServlet{
     public static DataSet dataset2;
     public static DataSet dataset3;
     public void init() throws ServletException {
-
         try {
-            ServletContext context = getServletContext();
-
             System.out.println("building model");
-
-
-            this.dataset3 = new DataSet();
-            dataset3.users = readMemberFromSQL();
-            dataset3.items = readProductFromSQL();
-            dataset3.itemsData = readProductDataFromSQL();
-            dataset3.transactions = readTransactionFromSQL("purchase");
-            dataset3.assignUserInterests();
-            //dataset.sortUserInterestsByNumberOfItem();
-            dataset3.removeNonPurchasedFromUserInterests();
-            dataset3.removeUnsoldItems();
-            dataset3.filterUser(6);
-            dataset3.printStatDataSet();
-
-            //offlineTesting();
-            this.dataset2 = new DataSet();
-            dataset2.users = readMemberFromSQL();
-            dataset2.items = readProductFromSQL();
-            dataset2.itemsData = readProductDataFromSQL();
-            dataset2.transactions = readTransactionFromSQL("purchase_stage_2");
-            dataset2.assignUserInterests();
-            dataset2.removeNonPurchasedFromUserInterests();
-            dataset2.removeUnsoldItems();
-            dataset2.filterUser(5);
-            dataset2.printStatDataSet();
-
-            this.dataset1 = new DataSet();
-            dataset1.users = readMemberFromSQL();
-            dataset1.items = readProductFromSQL();
-            dataset1.itemsData = readProductDataFromSQL();
-            dataset1.transactions = readTransactionFromSQL("purchase_stage_1");
-            dataset1.assignUserInterests();
-            dataset1.removeNonPurchasedFromUserInterests();
-            dataset1.removeUnsoldItems();
-            dataset1.filterUser(3);
-            dataset1.printStatDataSet();
-
-            naiveBayesModel1 = new NaiveBayesModel();
-            naiveBayesModel1.setDataset(dataset1);
-            naiveBayesModel1.calculatePriorProb();
-            naiveBayesModel1.calculateConditionalProb();
-
-            naiveBayesModel2 = new NaiveBayesModel();
-            naiveBayesModel2.setDataset(dataset2);
-            naiveBayesModel2.setPriorProbs(naiveBayesModel1.getPriorProbs());
-            naiveBayesModel2.setConditionalProbs(naiveBayesModel1.getConditionalProbs());
-
-            naiveBayesModel3 = new NaiveBayesModel();
-            naiveBayesModel3.setDataset(dataset3);
-            naiveBayesModel3.setPriorProbs(naiveBayesModel1.getPriorProbs());
-            naiveBayesModel3.setConditionalProbs(naiveBayesModel1.getConditionalProbs());
-
-            //svdModel = new SVDModel(dataset);
-            this.memoryBasedModelStage1 = new MemoryBasedModel("purchase_stage_1");
-            this.memoryBasedModelStage2 = new MemoryBasedModel("purchase_stage_2");
-            this.memoryBasedModelStage3 = new MemoryBasedModel("purchase");
+            buildModel();
             System.out.println("model built successfuly");
         } catch (IOException e){
-            System.out.println("failed to build model");
             System.out.println(e);
             return;
         }
         System.out.println("init done");
     }
+    public void startTest(){
+        modelBasedTest();
+        memoryBasedTest();
+    }
+    public void memoryBasedTest(){
 
+    }
+    public void modelBasedTest(){
+        DataSet trainingSet = new DataSet();
+        DataSet testingSet = new DataSet();
+        try {
+            trainingSet.users = readMemberFromSQL();
+            trainingSet.items = readProductFromSQL();
+            trainingSet.itemsData = readProductDataFromSQL();
+            trainingSet.transactions = readTransactionFromSQL("purchase_training");
+            trainingSet.assignUserInterests();
+            trainingSet.removeNonPurchasedFromUserInterests();
+            trainingSet.removeUnsoldItems();
+            trainingSet.printStatDataSet();
+
+            testingSet.users = readMemberFromSQL();
+            testingSet.items = readProductFromSQL();
+            testingSet.itemsData = readProductDataFromSQL();
+            testingSet.transactions = readTransactionFromSQL("purchase_testing");
+            testingSet.assignUserInterests();
+            testingSet.removeNonPurchasedFromUserInterests();
+            testingSet.removeUnsoldItems();
+            testingSet.printStatDataSet();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for(int ii = 5; ii <= 20; ii+=3){
+
+            TestingModelBased testingModelBased = new TestingModelBased(trainingSet,testingSet,ii);
+            testingModelBased.runTesting();
+        }
+    }
+    public void buildModel() throws IOException {
+        this.dataset3 = new DataSet();
+        dataset3.users = readMemberFromSQL();
+        dataset3.items = readProductFromSQL();
+        dataset3.itemsData = readProductDataFromSQL();
+        dataset3.transactions = readTransactionFromSQL("purchase");
+        dataset3.assignUserInterests();
+        //dataset.sortUserInterestsByNumberOfItem();
+        dataset3.removeNonPurchasedFromUserInterests();
+        dataset3.removeUnsoldItems();
+        dataset3.filterUser(6);
+        dataset3.printStatDataSet();
+
+        //offlineTesting();
+        this.dataset2 = new DataSet();
+        dataset2.users = readMemberFromSQL();
+        dataset2.items = readProductFromSQL();
+        dataset2.itemsData = readProductDataFromSQL();
+        dataset2.transactions = readTransactionFromSQL("purchase_stage_2");
+        dataset2.assignUserInterests();
+        dataset2.removeNonPurchasedFromUserInterests();
+        dataset2.removeUnsoldItems();
+        dataset2.filterUser(5);
+        dataset2.printStatDataSet();
+
+        this.dataset1 = new DataSet();
+        dataset1.users = readMemberFromSQL();
+        dataset1.items = readProductFromSQL();
+        dataset1.itemsData = readProductDataFromSQL();
+        dataset1.transactions = readTransactionFromSQL("purchase_stage_1");
+        dataset1.assignUserInterests();
+        dataset1.removeNonPurchasedFromUserInterests();
+        dataset1.removeUnsoldItems();
+        dataset1.filterUser(3);
+        dataset1.printStatDataSet();
+
+        naiveBayesModel1 = new NaiveBayesModel();
+        naiveBayesModel1.setDataset(dataset1);
+        naiveBayesModel1.calculatePriorProb();
+        naiveBayesModel1.calculateConditionalProb();
+
+        naiveBayesModel2 = new NaiveBayesModel();
+        naiveBayesModel2.setDataset(dataset2);
+        naiveBayesModel2.setPriorProbs(naiveBayesModel1.getPriorProbs());
+        naiveBayesModel2.setConditionalProbs(naiveBayesModel1.getConditionalProbs());
+
+        naiveBayesModel3 = new NaiveBayesModel();
+        naiveBayesModel3.setDataset(dataset3);
+        naiveBayesModel3.setPriorProbs(naiveBayesModel1.getPriorProbs());
+        naiveBayesModel3.setConditionalProbs(naiveBayesModel1.getConditionalProbs());
+
+        //svdModel = new SVDModel(dataset);
+        this.memoryBasedModelStage1 = new MemoryBasedModel("purchase_stage_1");
+        this.memoryBasedModelStage2 = new MemoryBasedModel("purchase_stage_2");
+        this.memoryBasedModelStage3 = new MemoryBasedModel("purchase");
+    }
     public static HashMap<String, Item> readProductData(BufferedReader productReader) throws IOException {
         System.out.println("Read Product Data");
         String line;

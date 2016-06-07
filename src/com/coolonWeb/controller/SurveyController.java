@@ -126,6 +126,9 @@ public class SurveyController extends HttpServlet{
             case "/submitRelevanceTest":
                 submitRelevanceTest(request, response);
                 return;
+            case "/test/submit":
+                submitFormTest(request, response);
+                return;
             default:
                 return;
         }
@@ -349,6 +352,10 @@ public class SurveyController extends HttpServlet{
             return;
         }
         user.itemTransactions.add(items.get(0));
+        MemoryBasedModel respondenPurchase = new MemoryBasedModel();
+        respondenPurchase.purchaseTable = "responden_purchase";
+        buyMemoryBased(user.id, items.get(0), respondenPurchase);
+
         buyMemoryBased(user.id, items.get(0), Main.memoryBasedModelStage1);
         buyMemoryBased(user.id, items.get(0), Main.memoryBasedModelStage2);
         buyMemoryBased(user.id, items.get(0), Main.memoryBasedModelStage3);
@@ -483,21 +490,18 @@ public class SurveyController extends HttpServlet{
         User user = (User) request.getSession().getAttribute("user");
         System.out.println(user.id);
         long startMillis = System.currentTimeMillis();
-        ArrayList<Item> items = Main.memoryBasedModelStage1.getRecommendationByUser(user.id);
+        ArrayList<Item> items = Main.memoryBasedModelStage1.getRecommendationByUser(user.id, 5);
         long endMilis = System.currentTimeMillis();
         long runtimeMillis = endMilis - startMillis;
         request.getSession().setAttribute("testTimeMethodAPart1Time", runtimeMillis);
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode A");
-
+        request.setAttribute("identifer", "testRelevancePart1A");
         request.setAttribute("nextUrl", "/survey/testTime/methodB/part1");
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
     public void testTimeMethodBPart1(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String input = request.getParameter("input");
-        request.getSession().setAttribute("testTimeMethodAPart1", input);
-
         User user = (User) request.getSession().getAttribute("user");
         long startMillis = System.currentTimeMillis();
         ArrayList<Item> items = Main.naiveBayesModel1.makeTopNRecommendation(user.id, 5);
@@ -506,18 +510,17 @@ public class SurveyController extends HttpServlet{
         request.getSession().setAttribute("testTimeMethodBPart1Time", runtimeMillis);
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
-        request.setAttribute("nextUrl", "/survey/testRelevance/part1");
+        request.setAttribute("identifer", "testRelevancePart1B");
+        request.setAttribute("nextUrl", "/survey/stage2");
         System.out.println(items.size());
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
     public void testRelevancePart1(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String input = request.getParameter("input");
-        request.getSession().setAttribute("testTimeMethodBPart1", input);
 
         User user = (User)request.getSession().getAttribute("user");
         ArrayList<Item> modelItems = Main.naiveBayesModel1.makeTopNRecommendation(user.id, 5);
-        ArrayList<Item> memoryItems = Main.memoryBasedModelStage1.getRecommendationByUser(user.id);
+        ArrayList<Item> memoryItems = Main.memoryBasedModelStage1.getRecommendationByUser(user.id, 5);
         ArrayList<Item> recommendedItems = new ArrayList<>();
         ArrayList<Item> both = new ArrayList<>();
         for(Item item : modelItems){
@@ -584,20 +587,18 @@ public class SurveyController extends HttpServlet{
         User user = (User) request.getSession().getAttribute("user");
         System.out.println(user.id);
         long startMillis = System.currentTimeMillis();
-        ArrayList<Item> items = Main.memoryBasedModelStage2.getRecommendationByUser(user.id);
+        ArrayList<Item> items = Main.memoryBasedModelStage2.getRecommendationByUser(user.id, 5);
         long endMilis = System.currentTimeMillis();
         long runtimeMillis = endMilis - startMillis;
         request.getSession().setAttribute("testTimeMethodAPart2Time", runtimeMillis);
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode A");
+        request.setAttribute("identifer", "testRelevancePart2A");
         request.setAttribute("nextUrl", "/survey/testTime/methodB/part2");
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
     public void testTimeMethodBPart2(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String input = request.getParameter("input");
-        request.getSession().setAttribute("testTimeMethodAPart2", input);
-
         User user = (User) request.getSession().getAttribute("user");
         System.out.println(user.id);
         long startMillis = System.currentTimeMillis();
@@ -608,7 +609,8 @@ public class SurveyController extends HttpServlet{
 
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
-        request.setAttribute("nextUrl", "/survey/testRelevance/part2");
+        request.setAttribute("identifer", "testRelevancePart2B");
+        request.setAttribute("nextUrl", "/survey/stage3");
         System.out.println(items.size());
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
@@ -619,7 +621,7 @@ public class SurveyController extends HttpServlet{
 
         User user = (User)request.getSession().getAttribute("user");
         ArrayList<Item> modelItems = Main.naiveBayesModel2.makeTopNRecommendation(user.id, 5);
-        ArrayList<Item> memoryItems = Main.memoryBasedModelStage2.getRecommendationByUser(user.id);
+        ArrayList<Item> memoryItems = Main.memoryBasedModelStage2.getRecommendationByUser(user.id, 5);
         ArrayList<Item> recommendedItems = new ArrayList<>();
         ArrayList<Item> both = new ArrayList<>();
         for(Item item : modelItems){
@@ -685,20 +687,18 @@ public class SurveyController extends HttpServlet{
     public void testTimeMethodAPart3(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) request.getSession().getAttribute("user");
         long startMillis = System.currentTimeMillis();
-        ArrayList<Item> items = Main.memoryBasedModelStage3.getRecommendationByUser(user.id);
+        ArrayList<Item> items = Main.memoryBasedModelStage3.getRecommendationByUser(user.id, 5);
         long endMilis = System.currentTimeMillis();
         long runtimeMillis = endMilis - startMillis;
         request.getSession().setAttribute("testTimeMethodAPart3Time", runtimeMillis);
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode A");
+        request.setAttribute("identifer", "testRelevancePart3A");
         request.setAttribute("nextUrl", "/survey/testTime/methodB/part3");
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
     public void testTimeMethodBPart3(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String input = request.getParameter("input");
-        request.getSession().setAttribute("testTimeMethodAPart3", input);
-
         User user = (User) request.getSession().getAttribute("user");
 
         long startMillis = System.currentTimeMillis();
@@ -709,7 +709,8 @@ public class SurveyController extends HttpServlet{
 
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
-        request.setAttribute("nextUrl", "/survey/testRelevance/part3");
+        request.setAttribute("identifer", "testRelevancePart3B");
+        request.setAttribute("nextUrl", "/survey/final");
         request.setAttribute("testStage", "1");
         System.out.println(items.size());
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
@@ -721,7 +722,7 @@ public class SurveyController extends HttpServlet{
 
         User user = (User)request.getSession().getAttribute("user");
         ArrayList<Item> modelItems = Main.naiveBayesModel3.makeTopNRecommendation(user.id, 5);
-        ArrayList<Item> memoryItems = Main.memoryBasedModelStage3.getRecommendationByUser(user.id);
+        ArrayList<Item> memoryItems = Main.memoryBasedModelStage3.getRecommendationByUser(user.id, 5);
         ArrayList<Item> both = new ArrayList<>();
         for(Item item : modelItems){
             if(memoryItems.contains(item)){
@@ -846,14 +847,21 @@ public class SurveyController extends HttpServlet{
         int testRelevancePart2B = (int) session.getAttribute("testRelevancePart2B");
         int testRelevancePart3A = (int) session.getAttribute("testRelevancePart3A");
         int testRelevancePart3B = (int) session.getAttribute("testRelevancePart3B");
+        String testRelevancePart1ADetails = (String) session.getAttribute("testRelevancePart1ADetails");
+        String testRelevancePart1BDetails = (String) session.getAttribute("testRelevancePart1BDetails");
+        String testRelevancePart2ADetails = (String) session.getAttribute("testRelevancePart2ADetails");
+        String testRelevancePart2BDetails = (String) session.getAttribute("testRelevancePart2BDetails");
+        String testRelevancePart3ADetails = (String) session.getAttribute("testRelevancePart3ADetails");
+        String testRelevancePart3BDetails = (String) session.getAttribute("testRelevancePart3BDetails");
+
         DBConnect db = new DBConnect();
-        String sql = "INSERT INTO survey (email,hp,age,gender,is_ever,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b)";
-        sql = sql + "values ('"+user.email+"','"+user.phone+"','"+user.ageGroup+"','"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+")";
+        String sql = "INSERT INTO survey (email,hp,age,gender,is_ever,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b, test_relevance_part_1_a_details, test_relevance_part_1_b_details, test_relevance_part_2_a_details, test_relevance_part_2_b_details, test_relevance_part_3_a_details, test_relevance_part_3_b_details)";
+        sql = sql + "values ('"+user.email+"','"+user.phone+"','"+user.ageGroup+"','"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+",'"+testRelevancePart1ADetails+"', '"+testRelevancePart1BDetails+"', '"+testRelevancePart2ADetails+"', '"+testRelevancePart2BDetails+"', '"+testRelevancePart3ADetails+"', '"+testRelevancePart3BDetails+"')";
         System.out.println(sql);
         db.setSql(sql);
         db.executeUpdate();
         db.closeConnection();
-
+        cleanUpDB(user);
         response.sendRedirect(Config.SITE_URL+"/survey/thanks");
     }
     
@@ -861,10 +869,32 @@ public class SurveyController extends HttpServlet{
         request.getRequestDispatcher("/views/thanks.jsp").forward(request,response);
     }
 
+    public void submitFormTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String[] selectedItems = request.getParameterValues("selectedItem");
+        String identifier = request.getParameter("identifier");
+        String details="";
+        if(selectedItems != null){
+            User user = (User) request.getSession().getAttribute("user");
+            for(String selectedItem : selectedItems){
+                String[] selectedItemSplit = selectedItem.split("-");
+                details = selectedItemSplit[1];
+                buyItem(user,selectedItemSplit[0]);
+            }
+        }
+        request.getSession().setAttribute(identifier+"Details", details);
+        request.getSession().setAttribute(identifier, selectedItems.length);
+        response.sendRedirect(request.getParameter("nextUrl"));
+    }
+
+    public void cleanUpDB(User user){
+        Main.memoryBasedModelStage1.removeUserFromTransaction(user.id);
+        Main.memoryBasedModelStage2.removeUserFromTransaction(user.id);
+        Main.memoryBasedModelStage3.removeUserFromTransaction(user.id);
+    }
     public void testRecommendation(HttpServletRequest request, HttpServletResponse response){
-        Main.memoryBasedModelStage3.getRecommendationByUser("2246391147");
-        Main.memoryBasedModelStage2.getRecommendationByUser("2246391147");
-        Main.memoryBasedModelStage1.getRecommendationByUser("2246391147");
+        Main.memoryBasedModelStage3.getRecommendationByUser("2246391147", 5);
+        Main.memoryBasedModelStage2.getRecommendationByUser("2246391147", 5);
+        Main.memoryBasedModelStage1.getRecommendationByUser("2246391147", 5);
         Main.naiveBayesModel3.makeTopNRecommendation("2246391147", 5);
         Main.naiveBayesModel2.makeTopNRecommendation("2246391147", 5);
         Main.naiveBayesModel1.makeTopNRecommendation("2246391147", 5);
