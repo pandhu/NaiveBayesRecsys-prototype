@@ -28,6 +28,20 @@
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
         Maksimal memilih 2. Boleh tidak memilih.
     </div>
+    <div class="col-md-12">
+        <h3>Riwayat Transaksi</h3>
+        <table class="table table-hover">
+            <%
+                ArrayList<Item> historyItems = ((ArrayList<Item>) request.getAttribute("historyItems"));
+                if(historyItems != null){
+                    for(Item item : historyItems ) {%>
+            <tr>
+                <td><a href="<%=Config.SITE_URL+"item/detail?id="+item.id%>"><%=item.name%></a></td>
+            </tr>
+            <% }
+            }%>
+        </table>
+    </div>
 </div>
 <div class="col-md-6">
     <form method="post" action="<%=Config.SITE_URL%>/survey/test/submit">

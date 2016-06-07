@@ -12,6 +12,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <jsp:include page="/WEB-INF/jsp/header.inc.jsp"></jsp:include>
 <%
+    String error = (String) request.getSession().getAttribute("error");
+    if(error != null){%>
+<div class="alert alert-danger" role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+    Tidak bisa memilih barang yang sama
+</div>
+<%  }
+    request.getSession().removeAttribute("error");
+%>
+<%
     String success = (String) request.getSession().getAttribute("success");
     if(success != null){%>
 <div class="alert alert-success" role="alert">

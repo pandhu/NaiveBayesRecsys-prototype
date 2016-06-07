@@ -163,7 +163,7 @@ public class MemoryBasedModel {
     public void removeUserFromTransaction(String idUser){
         String query = "DELETE FROM "+purchaseTable+" where MEM_NO_ENC="+idUser;
         DBConnect db = new DBConnect();
-        db.execute();
+        db.executeUpdate();
         db.closeConnection();
     }
 }

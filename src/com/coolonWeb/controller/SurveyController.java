@@ -107,6 +107,24 @@ public class SurveyController extends HttpServlet{
             case "/stressTest":
                 testRecommendation(request,response);
                 return;
+            case "/methodA/part1":
+                methodWarning1A(request,response);
+                return;
+            case "/methodA/part2":
+                methodWarning2A(request,response);
+                return;
+            case "/methodA/part3":
+                methodWarning3A(request,response);
+                return;
+            case "/methodB/part1":
+                methodWarning1B(request,response);
+                return;
+            case "/methodB/part2":
+                methodWarning2B(request,response);
+                return;
+            case "/methodB/part3":
+                methodWarning3B(request,response);
+                return;
             default:
                 return;
         }
@@ -320,9 +338,17 @@ public class SurveyController extends HttpServlet{
     public void buyItem(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String idItem = request.getParameter("id");
-        buyItem(user, idItem);
-        request.getSession().setAttribute("success", "Barang berhasil ditambahkan ke riwayat transaksi");
-        response.sendRedirect(Config.SITE_URL+"/survey/chooseItem");
+        Item current = new Item();
+        current.id = idItem;
+        ArrayList<Item> history = getUserHistory(user);
+        if(history.contains(current)){
+            request.getSession().setAttribute("error", "Tidak dapat membeli barang yang sama");
+            response.sendRedirect(Config.SITE_URL+"/survey/chooseItem");
+        } else {
+            buyItem(user, idItem);
+            request.getSession().setAttribute("success", "Barang berhasil ditambahkan ke riwayat transaksi");
+            response.sendRedirect(Config.SITE_URL + "/survey/chooseItem");
+        }
     }
     public void buyItem(User user, String idItem){
         DBConnect db = new DBConnect();
@@ -496,8 +522,9 @@ public class SurveyController extends HttpServlet{
         request.getSession().setAttribute("testTimeMethodAPart1Time", runtimeMillis);
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode A");
-        request.setAttribute("identifer", "testRelevancePart1A");
-        request.setAttribute("nextUrl", "/survey/testTime/methodB/part1");
+        request.setAttribute("identifier", "testRelevancePart1A");
+        request.setAttribute("nextUrl", "/survey/methodB/part1");
+        request.setAttribute("historyItems", getUserHistory(user));
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
@@ -510,9 +537,9 @@ public class SurveyController extends HttpServlet{
         request.getSession().setAttribute("testTimeMethodBPart1Time", runtimeMillis);
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
-        request.setAttribute("identifer", "testRelevancePart1B");
+        request.setAttribute("identifier", "testRelevancePart1B");
         request.setAttribute("nextUrl", "/survey/stage2");
-        System.out.println(items.size());
+        request.setAttribute("historyItems", getUserHistory(user));
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
@@ -593,8 +620,10 @@ public class SurveyController extends HttpServlet{
         request.getSession().setAttribute("testTimeMethodAPart2Time", runtimeMillis);
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode A");
-        request.setAttribute("identifer", "testRelevancePart2A");
-        request.setAttribute("nextUrl", "/survey/testTime/methodB/part2");
+        request.setAttribute("identifier", "testRelevancePart2A");
+        request.setAttribute("nextUrl", "/survey/methodB/part2");
+        request.setAttribute("historyItems", getUserHistory(user));
+
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
@@ -609,9 +638,10 @@ public class SurveyController extends HttpServlet{
 
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
-        request.setAttribute("identifer", "testRelevancePart2B");
+        request.setAttribute("identifier", "testRelevancePart2B");
         request.setAttribute("nextUrl", "/survey/stage3");
-        System.out.println(items.size());
+        request.setAttribute("historyItems", getUserHistory(user));
+
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
@@ -693,8 +723,10 @@ public class SurveyController extends HttpServlet{
         request.getSession().setAttribute("testTimeMethodAPart3Time", runtimeMillis);
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode A");
-        request.setAttribute("identifer", "testRelevancePart3A");
-        request.setAttribute("nextUrl", "/survey/testTime/methodB/part3");
+        request.setAttribute("identifier", "testRelevancePart3A");
+        request.setAttribute("nextUrl", "/survey/methodB/part3");
+        request.setAttribute("historyItems", getUserHistory(user));
+
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
@@ -709,10 +741,11 @@ public class SurveyController extends HttpServlet{
 
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
-        request.setAttribute("identifer", "testRelevancePart3B");
+        request.setAttribute("identifier", "testRelevancePart3B");
         request.setAttribute("nextUrl", "/survey/final");
         request.setAttribute("testStage", "1");
-        System.out.println(items.size());
+        request.setAttribute("historyItems", getUserHistory(user));
+
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
 
@@ -780,15 +813,15 @@ public class SurveyController extends HttpServlet{
     }
 
     public void testTimePart1(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("nextUrl", "survey/testTime/methodA/part1");
+        request.setAttribute("nextUrl", "survey/methodA/part1");
         request.getRequestDispatcher("/views/timeTestWarning.jsp").forward(request, response);
     }
     public void testTimePart2(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("nextUrl", "survey/testTime/methodA/part2");
+        request.setAttribute("nextUrl", "survey/methodA/part2");
         request.getRequestDispatcher("/views/timeTestWarning.jsp").forward(request, response);
     }
     public void testTimePart3(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("nextUrl", "survey/testTime/methodA/part3");
+        request.setAttribute("nextUrl", "survey/methodA/part3");
         request.getRequestDispatcher("/views/timeTestWarning.jsp").forward(request, response);
     }
 
@@ -829,17 +862,17 @@ public class SurveyController extends HttpServlet{
     public void submit(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-        String testTimeMethodAPart1 = (String) session.getAttribute("testTimeMethodAPart1");
+        String testTimeMethodAPart1 = (String) session.getAttribute("testRelevancePart1AT");
         int testTimeMethodAPart1Time = ((Long) session.getAttribute("testTimeMethodAPart1Time")).intValue();
-        String testTimeMethodAPart2 = (String) session.getAttribute("testTimeMethodAPart2");
+        String testTimeMethodAPart2 = (String) session.getAttribute("testRelevancePart2AT");
         int testTimeMethodAPart2Time = ((Long)session.getAttribute("testTimeMethodAPart2Time")).intValue();
-        String testTimeMethodAPart3 = (String) session.getAttribute("testTimeMethodAPart3");
+        String testTimeMethodAPart3 = (String) session.getAttribute("testRelevancePart3AT");
         int testTimeMethodAPart3Time = ((Long) session.getAttribute("testTimeMethodAPart3Time")).intValue();
-        String testTimeMethodBPart1 = (String) session.getAttribute("testTimeMethodBPart1");
+        String testTimeMethodBPart1 = (String) session.getAttribute("testRelevancePart1BT");
         int testTimeMethodBPart1Time =  ((Long)session.getAttribute("testTimeMethodBPart1Time")).intValue();
-        String testTimeMethodBPart2 = (String) session.getAttribute("testTimeMethodBPart2");
+        String testTimeMethodBPart2 = (String) session.getAttribute("testRelevancePart2BT");
         int testTimeMethodBPart2Time = ((Long)session.getAttribute("testTimeMethodBPart2Time")).intValue();
-        String testTimeMethodBPart3 = (String) session.getAttribute("testTimeMethodBPart3");
+        String testTimeMethodBPart3 = (String) session.getAttribute("testRelevancePart3BT");
         int testTimeMethodBPart3Time =  ((Long)session.getAttribute("testTimeMethodBPart3Time")).intValue();
         int testRelevancePart1A = (int) session.getAttribute("testRelevancePart1A");
         int testRelevancePart1B = (int) session.getAttribute("testRelevancePart1B");
@@ -855,8 +888,8 @@ public class SurveyController extends HttpServlet{
         String testRelevancePart3BDetails = (String) session.getAttribute("testRelevancePart3BDetails");
 
         DBConnect db = new DBConnect();
-        String sql = "INSERT INTO survey (email,hp,age,gender,is_ever,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b, test_relevance_part_1_a_details, test_relevance_part_1_b_details, test_relevance_part_2_a_details, test_relevance_part_2_b_details, test_relevance_part_3_a_details, test_relevance_part_3_b_details)";
-        sql = sql + "values ('"+user.email+"','"+user.phone+"','"+user.ageGroup+"','"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+",'"+testRelevancePart1ADetails+"', '"+testRelevancePart1BDetails+"', '"+testRelevancePart2ADetails+"', '"+testRelevancePart2BDetails+"', '"+testRelevancePart3ADetails+"', '"+testRelevancePart3BDetails+"')";
+        String sql = "INSERT INTO survey (MEM_NO_ENC, email,hp,age,gender,is_ever,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b, test_relevance_part_1_a_details, test_relevance_part_1_b_details, test_relevance_part_2_a_details, test_relevance_part_2_b_details, test_relevance_part_3_a_details, test_relevance_part_3_b_details)";
+        sql = sql + "values ("+user.id+", '"+user.email+"','"+user.phone+"','"+user.ageGroup+"','"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+",'"+testRelevancePart1ADetails+"', '"+testRelevancePart1BDetails+"', '"+testRelevancePart2ADetails+"', '"+testRelevancePart2BDetails+"', '"+testRelevancePart3ADetails+"', '"+testRelevancePart3BDetails+"')";
         System.out.println(sql);
         db.setSql(sql);
         db.executeUpdate();
@@ -873,16 +906,19 @@ public class SurveyController extends HttpServlet{
         String[] selectedItems = request.getParameterValues("selectedItem");
         String identifier = request.getParameter("identifier");
         String details="";
+        int count = 0;
         if(selectedItems != null){
             User user = (User) request.getSession().getAttribute("user");
             for(String selectedItem : selectedItems){
                 String[] selectedItemSplit = selectedItem.split("-");
-                details = selectedItemSplit[1];
+                details += selectedItemSplit[1]+"-";
                 buyItem(user,selectedItemSplit[0]);
             }
+            count = selectedItems.length;
         }
         request.getSession().setAttribute(identifier+"Details", details);
-        request.getSession().setAttribute(identifier, selectedItems.length);
+        request.getSession().setAttribute(identifier+"T", request.getParameter("isTolarable"));
+        request.getSession().setAttribute(identifier, count);
         response.sendRedirect(request.getParameter("nextUrl"));
     }
 
@@ -899,5 +935,61 @@ public class SurveyController extends HttpServlet{
         Main.naiveBayesModel2.makeTopNRecommendation("2246391147", 5);
         Main.naiveBayesModel1.makeTopNRecommendation("2246391147", 5);
         System.out.println("stress test done");
+    }
+
+    public void methodWarning1A(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("method", "Metode A");
+        request.setAttribute("nextUrl", "survey/testTime/methodA/part1");
+        request.getRequestDispatcher("/views/methodAWarning.jsp").forward(request, response);
+    }
+    public void methodWarning2A(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("method", "Metode A");
+        request.setAttribute("nextUrl", "survey/testTime/methodA/part2");
+        request.getRequestDispatcher("/views/methodAWarning.jsp").forward(request, response);
+    }
+    public void methodWarning3A(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("method", "Metode A");
+        request.setAttribute("nextUrl", "survey/testTime/methodA/part3");
+        request.getRequestDispatcher("/views/methodAWarning.jsp").forward(request, response);
+    }
+    public void methodWarning1B(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("method", "Metode B");
+        request.setAttribute("nextUrl", "survey/testTime/methodB/part1");
+        request.getRequestDispatcher("/views/methodAWarning.jsp").forward(request, response);
+    }
+    public void methodWarning2B(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("method", "Metode B");
+        request.setAttribute("nextUrl", "survey/testTime/methodB/part2");
+        request.getRequestDispatcher("/views/methodAWarning.jsp").forward(request, response);
+    }
+    public void methodWarning3B(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("method", "Metode B");
+        request.setAttribute("nextUrl", "survey/testTime/methodB/part3");
+        request.getRequestDispatcher("/views/methodAWarning.jsp").forward(request, response);
+    }
+
+    public ArrayList<Item> getUserHistory(User user){
+        ArrayList<Item> historyItems = new ArrayList<>();
+
+        DBConnect db = new DBConnect();
+        db.setSql("SELECT * FROM purchase WHERE MEM_NO_ENC = "+user.id+" group by PRODUCT_NUMBER_ENC");
+        ResultSet rs = db.execute();
+        try {
+            while(rs.next()){
+                //Retrieve by column name
+                Item item = new Item();
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+                item.category1 = rs.getString("LV1_CATEGORY");
+                item.category2 = rs.getString("LV2_CATEGORY");
+                item.category3 = rs.getString("LV3_CATEGORY");
+                historyItems.add(item);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
+        return historyItems;
     }
 }
