@@ -36,20 +36,21 @@
         <div class="col-md-6">
             <h3>Riwayat Transaksi</h3>
             <table class="table table-hover">
-                <%
+                <%int historySize = 0;
                     ArrayList<Item> historyItems = ((ArrayList<Item>) request.getAttribute("historyItems"));
                     if(historyItems != null){
+                        historySize = historyItems.size();
                         for(Item item : historyItems ) {%>
                 <tr>
                     <td><a><%=item.name%></a></td>
                 </tr>
                 <%      }
                     }%>
-                <%=historyItems.size()%>/3
+                <%=historyItems.size()%>/<%=request.getSession().getAttribute("buyLimit")%>
             </table>
             <div class="alert alert-warning" role="alert">
                 <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                Pada tahap ini anda diminta untuk membeli 3 buah barang yang tersedia pada sistem.
+                Pada tahap ini anda diminta untuk membeli <%= (Integer)request.getSession().getAttribute("buyLimit")- historySize%> lagi barang yang tersedia pada sistem.
                 Anda dapat menggunakan fitur search di samping.
             </div>
         </div>

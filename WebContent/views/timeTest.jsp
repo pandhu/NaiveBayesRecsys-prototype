@@ -26,7 +26,7 @@
 
     <div class="alert alert-warning" role="alert">
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-        Maksimal memilih 2. Boleh tidak memilih.
+        Boleh tidak memilih.
     </div>
     <div class="col-md-12">
         <h3>Riwayat Transaksi</h3>

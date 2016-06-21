@@ -52,7 +52,7 @@ public class TestingController extends HttpServlet implements Runnable{
     }
     public void memoryBasedTest(HttpServletRequest request, HttpServletResponse response){
         System.out.print("test begin....");
-        splitDataset("purchase", 30);
+        splitDataset("purchase_stage_1", 30);
     }
 
     public void memoryBasedTest(){

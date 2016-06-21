@@ -119,9 +119,9 @@ public class MemoryBasedModel {
         return result;
     }
 
-    public ArrayList<Item> getRecommendationByUser(String idUser, int n){
-        DBConnect db = new DBConnect();
-        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+", ( SELECT MEM_NO_ENC,COUNT(MEM_NO_ENC) jumlah FROM "+purchaseTable+" WHERE PRODUCT_NUMBER_ENC in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) AND MEM_NO_ENC <> "+idUser+" GROUP BY MEM_NO_ENC ORDER BY JUMLAH DESC LIMIT 10 ) t WHERE t.MEM_NO_ENC="+purchaseTable+".MEM_NO_ENC AND "+purchaseTable+".PRODUCT_NUMBER_ENC not in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT "+n);
+    public ArrayList<Item> getRecommendationByUser(String idUser, int n, DBConnect db){
+        //DBConnect db = new DBConnect();
+        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+" JOIN ( SELECT MEM_NO_ENC,COUNT(MEM_NO_ENC) jumlah FROM "+purchaseTable+" WHERE PRODUCT_NUMBER_ENC in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) AND MEM_NO_ENC <> "+idUser+" GROUP BY MEM_NO_ENC ORDER BY JUMLAH DESC LIMIT 10 ) t ON t.MEM_NO_ENC="+purchaseTable+".MEM_NO_ENC AND "+purchaseTable+".PRODUCT_NUMBER_ENC not in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT "+n);
         ResultSet rs = db.execute();
         ArrayList<Item> result = new ArrayList<>();
         try {
@@ -158,11 +158,56 @@ public class MemoryBasedModel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        //db.closeConnection();
+        return result;
+    }
+
+    public ArrayList<Item> getRecommendationByUser(String idUser, int n){
+        DBConnect db = new DBConnect();
+        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+", ( SELECT MEM_NO_ENC,COUNT(MEM_NO_ENC) jumlah FROM "+purchaseTable+" WHERE PRODUCT_NUMBER_ENC in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) AND MEM_NO_ENC <> "+idUser+" GROUP BY MEM_NO_ENC ORDER BY JUMLAH DESC LIMIT 10 ) t WHERE t.MEM_NO_ENC="+purchaseTable+".MEM_NO_ENC AND "+purchaseTable+".PRODUCT_NUMBER_ENC not in ( SELECT PRODUCT_NUMBER_ENC FROM "+purchaseTable+" WHERE MEM_NO_ENC="+idUser+" ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT "+n);
+        ResultSet rs = db.execute();
+        ArrayList<Item> result = new ArrayList<>();
+        try {
+            while(rs.next()){
+                Item item = new Item();
+                //Retrieve by column name
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+
+                result.add(item);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if(result.size() >= n)
+            return result;
+
+        //db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+" WHERE MEM_NO_ENC in ( SELECT MEM_NO_ENC FROM member, ( SELECT AGE_GROUP, GENDER FROM member WHERE MEM_NO_ENC = "+idUser+" ) q WHERE q.AGE_GROUP = member.AGE_GROUP and q.GENDER = member.GENDER ) GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT "+n);
+        db.setSql("SELECT PRODUCT_NUMBER_ENC, PRODUCT_NAME, count(PRODUCT_NUMBER_ENC) jumlah FROM "+purchaseTable+" GROUP BY PRODUCT_NUMBER_ENC ORDER BY JUMLAH DESC LIMIT "+n);
+        rs = db.execute();
+        try {
+            while(rs.next()){
+                Item item = new Item();
+                //Retrieve by column name
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+
+                result.add(item);
+                if(result.size() >= n)
+                    return result;
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        db.closeConnection();
         return result;
     }
     public void removeUserFromTransaction(String idUser){
         String query = "DELETE FROM "+purchaseTable+" where MEM_NO_ENC="+idUser;
         DBConnect db = new DBConnect();
+        db.setSql(query);
         db.executeUpdate();
         db.closeConnection();
     }

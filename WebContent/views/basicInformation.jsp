@@ -64,13 +64,9 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Pernah berbelanja di e-commerce (Elevenia, Lazada, Bukalapak, Tokopedia, dll)</label>
-                <div class="radio">
-                    <label><input type="radio" value="1" name="isEver" required>Ya</label>
-                </div>
-                <div class="radio">
-                    <label><input type="radio" value="0" name="isEver">Tidak</label>
-                </div>
+                <label>Berapa kali Anda pernah berbelanja di e-commerce (Elevenia, Lazada, Bukalapak, Tokopedia, dll)?</label>
+                <br/>
+                <label><input type="number" name="isEver" required> Kali</label>
             </div>
             <button type="submit" class="btn btn-default">Lanjut</button>
         </form>

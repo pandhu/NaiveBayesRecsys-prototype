@@ -125,6 +125,16 @@ public class SurveyController extends HttpServlet{
             case "/methodB/part3":
                 methodWarning3B(request,response);
                 return;
+            case "/submit/stage1":
+                submitStage1(request,response);
+                return;
+            case "/submit/stage2":
+                submitStage2(request,response);
+                return;
+            case "/submit/stage3":
+                submitStage3(request,response);
+                return;
+
             default:
                 return;
         }
@@ -153,7 +163,8 @@ public class SurveyController extends HttpServlet{
     }
 
     public void welcome(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        request.getSession().setAttribute("surveyTimeStart", System.currentTimeMillis());
+        request.getSession().setAttribute("buyLimit", 3);
         request.getRequestDispatcher("/views/welcome.jsp").forward(request, response);
     }
     public void scenarioExplaination(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -216,10 +227,21 @@ public class SurveyController extends HttpServlet{
     }
     public void chooseInitialItem(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) request.getSession().getAttribute("user");
-        if(user.itemTransactions.size()>=3){
+        int buyLimit =  (Integer)request.getSession().getAttribute("buyLimit");
+        if(user.itemTransactions.size()>= buyLimit && buyLimit == 3){
+            request.getSession().setAttribute("buyLimit", 5);
             response.sendRedirect(Config.SITE_URL+"/survey/transactionHistory");
             return;
+        } else if(user.itemTransactions.size()>= buyLimit && buyLimit == 5){
+            request.getSession().setAttribute("buyLimit", 6);
+            response.sendRedirect(Config.SITE_URL+"/survey/testTime/part2");
+            return;
         }
+        else if(user.itemTransactions.size()>= buyLimit && buyLimit == 6){
+            response.sendRedirect(Config.SITE_URL+"/survey/testTime/part3");
+            return;
+        }
+
         String q = "";
         q = request.getParameter("q");
         String query = "SELECT * FROM purchase_stage_1 WHERE MEM_NO_ENC = ? group by PRODUCT_NUMBER_ENC";
@@ -345,12 +367,44 @@ public class SurveyController extends HttpServlet{
             request.getSession().setAttribute("error", "Tidak dapat membeli barang yang sama");
             response.sendRedirect(Config.SITE_URL+"/survey/chooseItem");
         } else {
-            buyItem(user, idItem);
+            buyItemStoreToAllModel(user, idItem);
             request.getSession().setAttribute("success", "Barang berhasil ditambahkan ke riwayat transaksi");
             response.sendRedirect(Config.SITE_URL + "/survey/chooseItem");
         }
     }
     public void buyItem(User user, String idItem){
+        DBConnect db = new DBConnect();
+        String query = "SELECT * FROM product WHERE PRODUCT_NUMBER_ENC = ?";
+        ArrayList<Item> items = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = db.conn.prepareStatement(query);
+            preparedStatement.setString(1, idItem);
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()){
+                //Retrieve by column name
+                Item item = new Item();
+                item.id = rs.getString("PRODUCT_NUMBER_ENC");
+                item.name = rs.getString("PRODUCT_NAME");
+                item.category1 = rs.getString("LV1_CATEGORY");
+                item.category2 = rs.getString("LV2_CATEGORY");
+                item.category3 = rs.getString("LV3_CATEGORY");
+                items.add(item);
+            }
+            rs.close();
+            preparedStatement.close();
+            db.closeConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if(items.size() == 0){
+            return;
+        }
+        MemoryBasedModel respondenPurchase = new MemoryBasedModel();
+        respondenPurchase.purchaseTable = "responden_purchase";
+        buyMemoryBased(user.id, items.get(0), respondenPurchase);
+
+    }
+    public void buyItemStoreToAllModel(User user, String idItem){
         DBConnect db = new DBConnect();
         String query = "SELECT * FROM product WHERE PRODUCT_NUMBER_ENC = ?";
         ArrayList<Item> items = new ArrayList<>();
@@ -388,10 +442,9 @@ public class SurveyController extends HttpServlet{
         buyModelBased(user.id, items.get(0), Main.naiveBayesModel1);
         buyModelBased(user.id, items.get(0), Main.naiveBayesModel2);
         buyModelBased(user.id, items.get(0), Main.naiveBayesModel3);
-
     }
     public void buyMemoryBased(String idUser, Item item, MemoryBasedModel model){
-        String todayAsString = new SimpleDateFormat("ddMMyy").format(new Date());
+        String todayAsString = new SimpleDateFormat("yyyyMM").format(new Date());
         DBConnect db = new DBConnect();
         String query = "INSERT INTO "+model.purchaseTable+" (ORD_MONTH, MEM_NO_ENC, PRODUCT_NUMBER_ENC, PRODUCT_NAME, LV1_CATEGORY, LV2_CATEGORY, LV3_CATEGORY, OPTIONS)";
         query += " values (?,?,?,?,?,?,?,?)";
@@ -538,7 +591,7 @@ public class SurveyController extends HttpServlet{
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
         request.setAttribute("identifier", "testRelevancePart1B");
-        request.setAttribute("nextUrl", "/survey/stage2");
+        request.setAttribute("nextUrl", "/survey/submit/stage1");
         request.setAttribute("historyItems", getUserHistory(user));
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
     }
@@ -639,7 +692,7 @@ public class SurveyController extends HttpServlet{
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
         request.setAttribute("identifier", "testRelevancePart2B");
-        request.setAttribute("nextUrl", "/survey/stage3");
+        request.setAttribute("nextUrl", "/survey/submit/stage2");
         request.setAttribute("historyItems", getUserHistory(user));
 
         request.getRequestDispatcher("/views/timeTest.jsp").forward(request,response);
@@ -742,7 +795,7 @@ public class SurveyController extends HttpServlet{
         request.setAttribute("items", items);
         request.setAttribute("method", "Metode B");
         request.setAttribute("identifier", "testRelevancePart3B");
-        request.setAttribute("nextUrl", "/survey/final");
+        request.setAttribute("nextUrl", "/survey/submit/stage3");
         request.setAttribute("testStage", "1");
         request.setAttribute("historyItems", getUserHistory(user));
 
@@ -887,9 +940,11 @@ public class SurveyController extends HttpServlet{
         String testRelevancePart3ADetails = (String) session.getAttribute("testRelevancePart3ADetails");
         String testRelevancePart3BDetails = (String) session.getAttribute("testRelevancePart3BDetails");
 
+        int surveyTime  = (int)(System.currentTimeMillis()- (long)request.getSession().getAttribute("surveyTimeStart"))/1000;
+
         DBConnect db = new DBConnect();
-        String sql = "INSERT INTO survey (MEM_NO_ENC, email,hp,age,gender,is_ever,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b, test_relevance_part_1_a_details, test_relevance_part_1_b_details, test_relevance_part_2_a_details, test_relevance_part_2_b_details, test_relevance_part_3_a_details, test_relevance_part_3_b_details)";
-        sql = sql + "values ("+user.id+", '"+user.email+"','"+user.phone+"','"+user.ageGroup+"','"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+",'"+testRelevancePart1ADetails+"', '"+testRelevancePart1BDetails+"', '"+testRelevancePart2ADetails+"', '"+testRelevancePart2BDetails+"', '"+testRelevancePart3ADetails+"', '"+testRelevancePart3BDetails+"')";
+        String sql = "INSERT INTO survey (MEM_NO_ENC, email,hp,age,gender,is_ever,test_time_method_a_part_1,test_time_method_a_part_1_time,test_time_method_a_part_2,test_time_method_a_part_2_time,test_time_method_a_part_3,test_time_method_a_part_3_time,test_time_method_b_part_1,test_time_method_b_part_1_time,test_time_method_b_part_2,test_time_method_b_part_2_time,test_time_method_b_part_3,test_time_method_b_part_3_time, test_relevance_part_1_a, test_relevance_part_1_b, test_relevance_part_2_a,test_relevance_part_2_b, test_relevance_part_3_a, test_relevance_part_3_b, test_relevance_part_1_a_details, test_relevance_part_1_b_details, test_relevance_part_2_a_details, test_relevance_part_2_b_details, test_relevance_part_3_a_details, test_relevance_part_3_b_details, time)";
+        sql = sql + "values ("+user.id+", '"+user.email+"','"+user.phone+"','"+user.ageGroup+"','"+user.gender+"',"+user.isEver+","+testTimeMethodAPart1+","+testTimeMethodAPart1Time+","+testTimeMethodAPart2+","+testTimeMethodAPart2Time+","+testTimeMethodAPart3+","+testTimeMethodAPart3Time+","+testTimeMethodBPart1+","+testTimeMethodBPart1Time+","+testTimeMethodBPart2+","+testTimeMethodBPart2Time+","+testTimeMethodBPart3+","+testTimeMethodBPart3Time+","+testRelevancePart1A+","+testRelevancePart1B+","+testRelevancePart2A+","+testRelevancePart2B+","+testRelevancePart3A+","+testRelevancePart3B+",'"+testRelevancePart1ADetails+"', '"+testRelevancePart1BDetails+"', '"+testRelevancePart2ADetails+"', '"+testRelevancePart2BDetails+"', '"+testRelevancePart3ADetails+"', '"+testRelevancePart3BDetails+"',"+surveyTime+")";
         System.out.println(sql);
         db.setSql(sql);
         db.executeUpdate();
@@ -905,17 +960,22 @@ public class SurveyController extends HttpServlet{
     public void submitFormTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String[] selectedItems = request.getParameterValues("selectedItem");
         String identifier = request.getParameter("identifier");
+        ArrayList<String> items = new ArrayList<>();
         String details="";
         int count = 0;
         if(selectedItems != null){
             User user = (User) request.getSession().getAttribute("user");
             for(String selectedItem : selectedItems){
+                if(count >= 2)
+                    break;
                 String[] selectedItemSplit = selectedItem.split("-");
                 details += selectedItemSplit[1]+"-";
-                buyItem(user,selectedItemSplit[0]);
+                items.add(selectedItem);
+                //buyItem(user,selectedItemSplit[0]);
+                count++;
             }
-            count = selectedItems.length;
         }
+        request.getSession().setAttribute(identifier+"Data", items);
         request.getSession().setAttribute(identifier+"Details", details);
         request.getSession().setAttribute(identifier+"T", request.getParameter("isTolarable"));
         request.getSession().setAttribute(identifier, count);
@@ -936,7 +996,68 @@ public class SurveyController extends HttpServlet{
         Main.naiveBayesModel1.makeTopNRecommendation("2246391147", 5);
         System.out.println("stress test done");
     }
+    public void submitStage1(HttpServletRequest request, HttpServletResponse response){
+        ArrayList<String> itemsMethodA = (ArrayList<String>) request.getSession().getAttribute("testRelevancePart1AData");
+        ArrayList<String> itemsMethodB = (ArrayList<String>) request.getSession().getAttribute("testRelevancePart1BData");
+        User user = (User) request.getSession().getAttribute("user");
+        for(String item: itemsMethodA){
+            String[] selectedItemSplit = item.split("-");
+            buyItem(user,selectedItemSplit[0]);
 
+        }
+        for(String item: itemsMethodB){
+            String[] selectedItemSplit = item.split("-");
+            buyItem(user,selectedItemSplit[0]);
+
+        }
+        try {
+            response.sendRedirect(Config.SITE_URL+"/survey/stage2");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void submitStage2(HttpServletRequest request, HttpServletResponse response){
+        ArrayList<String> itemsMethodA = (ArrayList<String>) request.getSession().getAttribute("testRelevancePart2AData");
+        ArrayList<String> itemsMethodB = (ArrayList<String>) request.getSession().getAttribute("testRelevancePart2BData");
+        User user = (User) request.getSession().getAttribute("user");
+        for(String item: itemsMethodA){
+            String[] selectedItemSplit = item.split("-");
+            buyItem(user,selectedItemSplit[0]);
+
+        }
+        for(String item: itemsMethodB){
+            String[] selectedItemSplit = item.split("-");
+            buyItem(user,selectedItemSplit[0]);
+
+        }
+        try {
+            response.sendRedirect(Config.SITE_URL+"/survey/stage3");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void submitStage3(HttpServletRequest request, HttpServletResponse response){
+        ArrayList<String> itemsMethodA = (ArrayList<String>) request.getSession().getAttribute("testRelevancePart3AData");
+        ArrayList<String> itemsMethodB = (ArrayList<String>) request.getSession().getAttribute("testRelevancePart3BData");
+        User user = (User) request.getSession().getAttribute("user");
+        for(String item: itemsMethodA){
+            String[] selectedItemSplit = item.split("-");
+            buyItem(user,selectedItemSplit[0]);
+
+        }
+        for(String item: itemsMethodB){
+            String[] selectedItemSplit = item.split("-");
+            buyItem(user,selectedItemSplit[0]);
+
+        }
+        try {
+            response.sendRedirect(Config.SITE_URL+"/survey/final");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public void methodWarning1A(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("method", "Metode A");
         request.setAttribute("nextUrl", "survey/testTime/methodA/part1");

@@ -18,13 +18,15 @@ public class CalculatePrecisionRecallModel implements Runnable {
     private DataSet testingSet;
     private ArrayList<Double> precisions;
     private ArrayList<Double> recalls;
+    private ArrayList<Double> fscore;
     private NaiveBayesModel model;
     private int n;
     private int startIndex;
     private int endIndex;
-    public CalculatePrecisionRecallModel(DataSet testingSet, ArrayList<Double> precisions, ArrayList<Double> recalls, NaiveBayesModel model, int n, int startIndex, int endIndex){
+    public CalculatePrecisionRecallModel(DataSet testingSet, ArrayList<Double> precisions, ArrayList<Double> recalls, ArrayList<Double> fscore,NaiveBayesModel model, int n, int startIndex, int endIndex){
         this.testingSet = testingSet;
         this.precisions = precisions;
+        this.fscore = fscore;
         this.recalls = recalls;
         this.model = model;
         this.n = n;
@@ -45,8 +47,10 @@ public class CalculatePrecisionRecallModel implements Runnable {
             //printItems(testItems);
             double precision = precision(recommendedItems, testItems, hitsize);
             double recall = recall(recommendedItems, testItems, hitsize);
+            double f1score = calculateF1Score(precision, recall);
             precisions.add(precision);
             recalls.add(recall);
+            fscore.add(f1score);
             //System.out.println(recommendedItems.size()+", "+testItems.size()+", "+hitsize+" | "+ precision+", "+recall);
             //System.out.println(user + ": precision(" + precision + "), recall(" + recall + ")");
         }
@@ -58,7 +62,7 @@ public class CalculatePrecisionRecallModel implements Runnable {
 
     public double recall(ArrayList<Item> recommendedItems, ArrayList<Item> testItems, int hitsize){
         if(testItems.size() == 0)
-            return 0;
+            return 0.0;
         return hitsize/(testItems.size()*1.0);
     }
 
@@ -88,6 +92,11 @@ public class CalculatePrecisionRecallModel implements Runnable {
         for(Item item : items){
             System.out.println(item.name);
         }
+    }
+    public double calculateF1Score(double precision, double recall){
+        if(precision+recall == 0.0)
+            return 0.0;
+        return 2.0*precision*recall/(recall+precision);
     }
 
 }
